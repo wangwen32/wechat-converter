@@ -1,32 +1,111 @@
 /**
- * API 工具模块
- * 封装与后端的所有 HTTP 通信
+ * API 工具模块 — 支持云托管 callContainer 和本地调试
  */
-
 const app = getApp();
 
-/**
- * 获取后端基础地址
- */
+function isCloudMode() {
+  return app.globalData.useCloud;
+}
+
+function getCloudConfig() {
+  return {
+    env: app.globalData.cloudEnv,
+  };
+}
+
+function getServiceHeader() {
+  return { 'X-WX-SERVICE': app.globalData.cloudService };
+}
+
 function getBaseUrl() {
   return app.globalData.baseUrl;
 }
 
 /**
- * 上传文件并转换
- * @param {string}  convertType  - 'word2pdf' / 'pdf2word' / 'img2pdf' / 'remove-watermark'
- * @param {string}  filePath     - 本地文件路径
- * @param {string}  fileName     - 文件名
- * @param {Function} onProgress  - 上传进度回调 (percent: number)
- * @returns {Promise<{downloadUrl: string, filename: string, size: number}>}
+ * 调用云托管 API
  */
-function uploadAndConvert(convertType, filePath, fileName, onProgress) {
+function callContainer(path, method, data, options = {}) {
+  return new Promise((resolve, reject) => {
+    const header = {
+      ...getServiceHeader(),
+      'content-type': 'application/json',
+      ...(options.header || {}),
+    };
+
+    wx.cloud.callContainer({
+      config: getCloudConfig(),
+      path,
+      method,
+      header,
+      data,
+      success(res) {
+        if (res.statusCode !== 200) {
+          const detail = (res.data && (res.data.detail || res.data.message)) || '';
+          reject(new Error(detail || `服务器错误 (${res.statusCode})`));
+          return;
+        }
+        resolve(res.data);
+      },
+      fail(err) {
+        reject(new Error(err.errMsg || '网络请求失败'));
+      },
+    });
+  });
+}
+
+/**
+ * 文件转为 base64
+ */
+function fileToBase64(filePath) {
+  return new Promise((resolve, reject) => {
+    const fs = wx.getFileSystemManager();
+    try {
+      // 对于 chooseImage 得到的路径，有时 readFile 会失败，用 encodeURI 处理
+      const data = fs.readFileSync(filePath);
+      const base64 = wx.arrayBufferToBase64(data);
+      resolve(base64);
+    } catch (e) {
+      reject(new Error('读取文件失败: ' + e.message));
+    }
+  });
+}
+
+/**
+ * base64 转 ArrayBuffer
+ */
+function base64ToArrayBuffer(base64) {
+  const binaryStr = wx.base64ToArrayBuffer(base64);
+  return binaryStr;
+}
+
+/**
+ * 上传文件并转换（云托管模式）
+ */
+async function uploadAndCloudConvert(convertType, filePath, fileName) {
+  const fileBase64 = await fileToBase64(filePath);
+  const data = await callContainer('/api/convert/upload-base64', 'POST', {
+    endpoint: convertType,
+    fileBase64,
+    filename: fileName || 'file',
+  });
+
+  return {
+    downloadUrl: data.data.download_url,
+    filename: data.data.filename,
+    size: data.data.size,
+    downloadKey: data.data.download_key,
+  };
+}
+
+/**
+ * 上传文件并转换（本地调试模式 - 用 wx.uploadFile）
+ */
+function uploadAndConvertLegacy(convertType, filePath, fileName, onProgress) {
   return new Promise((resolve, reject) => {
     const url = `${getBaseUrl()}/api/convert/${convertType}`;
-
     const uploadTask = wx.uploadFile({
-      url: url,
-      filePath: filePath,
+      url,
+      filePath,
       name: 'file',
       formData: {},
       success(res) {
@@ -53,26 +132,50 @@ function uploadAndConvert(convertType, filePath, fileName, onProgress) {
         reject(new Error(err.errMsg || '网络请求失败'));
       },
     });
-
-    // 监听上传进度
     if (onProgress) {
-      uploadTask.onProgressUpdate((res) => {
-        onProgress(res.progress);
-      });
+      uploadTask.onProgressUpdate((res) => onProgress(res.progress));
     }
   });
 }
 
 /**
- * 下载转换后的文件
- * @param {string} url       - 文件下载地址
- * @param {string} filename  - 保存的文件名
- * @returns {Promise<string>} 临时文件路径
+ * 上传文件并转换（自动选择模式）
  */
-function downloadFile(url, filename) {
+function uploadAndConvert(convertType, filePath, fileName, onProgress) {
+  if (isCloudMode()) {
+    return uploadAndCloudConvert(convertType, filePath, fileName);
+  }
+  return uploadAndConvertLegacy(convertType, filePath, fileName, onProgress);
+}
+
+/**
+ * 下载文件（云托管模式）
+ */
+async function downloadFromCloud(downloadUrl, filename, downloadKey) {
+  // 通过 callContainer 获取文件数据
+  const data = await callContainer('/api/download/json', 'POST', {
+    download_key: downloadKey || filename,
+  });
+
+  // 保存文件到本地
+  const fs = wx.getFileSystemManager();
+  const tempDir = `${wx.env.USER_DATA_PATH}/downloads`;
+  try { fs.mkdirSync(tempDir); } catch(e) {}
+
+  const tempPath = `${tempDir}/${filename || 'file'}`;
+  const arrayBuffer = base64ToArrayBuffer(data.data.file_base64);
+  fs.writeFileSync(tempPath, arrayBuffer);
+
+  return tempPath;
+}
+
+/**
+ * 下载文件（本地模式）
+ */
+function downloadFileLegacy(url, filename) {
   return new Promise((resolve, reject) => {
     wx.downloadFile({
-      url: url,
+      url,
       success(res) {
         if (res.statusCode === 200) {
           resolve(res.tempFilePath);
@@ -88,18 +191,24 @@ function downloadFile(url, filename) {
 }
 
 /**
+ * 下载文件（自动选择）
+ */
+function downloadFile(url, filename, downloadKey) {
+  if (isCloudMode()) {
+    return downloadFromCloud(url, filename, downloadKey);
+  }
+  return downloadFileLegacy(url, filename);
+}
+
+/**
  * 打开/预览文件
- * @param {string} filePath - 本地文件路径
- * @param {string} ext      - 文件扩展名 (.pdf / .docx)
  */
 function openFile(filePath, ext) {
   wx.openDocument({
-    filePath: filePath,
+    filePath,
     fileType: ext === '.pdf' ? 'pdf' : 'docx',
-    showMenu: true,  // 允许转发/保存
-    success() {
-      console.log('文件打开成功');
-    },
+    showMenu: true,
+    success() { console.log('文件打开成功'); },
     fail(err) {
       wx.showToast({ title: '打开文件失败', icon: 'none' });
       console.error(err);
@@ -109,21 +218,31 @@ function openFile(filePath, ext) {
 
 /**
  * 生成条形码
- * @param {string} data        - 要编码的数据
- * @param {string} barcodeType - 条形码类型 (code128, code39, ean13 等)
- * @returns {Promise<{downloadUrl: string, filename: string, size: number}>}
  */
-function generateBarcode(data, barcodeType = 'code128') {
+async function generateBarcode(data, barcodeType = 'code128') {
+  if (isCloudMode()) {
+    const body = await callContainer('/api/generate/barcode', 'POST', {
+      data,
+      barcode_type: barcodeType,
+    });
+    return {
+      downloadUrl: body.data.download_url,
+      filename: body.data.filename,
+      size: body.data.size,
+      downloadKey: body.data.download_key || body.data.download_url.split('/').pop(),
+    };
+  }
+
+  // 本地模式
   return new Promise((resolve, reject) => {
     const url = `${getBaseUrl()}/api/generate/barcode`;
     wx.request({
-      url: url,
-      method: 'POST',
+      url, method: 'POST',
       header: { 'content-type': 'application/json' },
       data: { data, barcode_type: barcodeType },
       success(res) {
         if (res.statusCode !== 200) {
-          const detail = res.data?.detail || res.data?.message || '';
+          const detail = (res.data && (res.data.detail || res.data.message)) || '';
           reject(new Error(detail || `服务器错误 (${res.statusCode})`));
           return;
         }
@@ -147,15 +266,22 @@ function generateBarcode(data, barcodeType = 'code128') {
 
 /**
  * 生成二维码
- * @param {string} data - 要编码的数据（文本/URL）
- * @returns {Promise<{downloadUrl: string, filename: string, size: number}>}
  */
-function generateQRCode(data) {
+async function generateQRCode(data) {
+  if (isCloudMode()) {
+    const body = await callContainer('/api/generate/qrcode', 'POST', { data });
+    return {
+      downloadUrl: body.data.download_url,
+      filename: body.data.filename,
+      size: body.data.size,
+      downloadKey: body.data.download_key || body.data.download_url.split('/').pop(),
+    };
+  }
+
   return new Promise((resolve, reject) => {
     const url = `${getBaseUrl()}/api/generate/qrcode`;
     wx.request({
-      url: url,
-      method: 'POST',
+      url, method: 'POST',
       header: { 'content-type': 'application/json' },
       data: { data },
       success(res) {
@@ -184,12 +310,9 @@ function generateQRCode(data) {
 
 /**
  * 保存图片到相册
- * @param {string} imageUrl - 图片网络地址
- * @returns {Promise<string>} 本地临时路径
  */
 function saveImageToAlbum(imageUrl) {
   return new Promise((resolve, reject) => {
-    // 先下载图片
     wx.downloadFile({
       url: imageUrl,
       success(res) {
@@ -197,23 +320,15 @@ function saveImageToAlbum(imageUrl) {
           reject(new Error('图片下载失败'));
           return;
         }
-        // 保存到相册
         wx.saveImageToPhotosAlbum({
           filePath: res.tempFilePath,
-          success() {
-            resolve(res.tempFilePath);
-          },
+          success() { resolve(res.tempFilePath); },
           fail(err) {
-            // 可能需要授权
             if (err.errMsg && err.errMsg.includes('auth deny')) {
               wx.showModal({
                 title: '提示',
                 content: '需要相册权限才能保存图片',
-                success(m) {
-                  if (m.confirm) {
-                    wx.openSetting();
-                  }
-                },
+                success(m) { if (m.confirm) wx.openSetting(); },
               });
             }
             reject(new Error('保存失败: ' + (err.errMsg || '未知错误')));

@@ -97,7 +97,7 @@ Page({
       this.setData({ status: 'converting', progress: 99 });
 
       wx.redirectTo({
-        url: `/pages/result/result?downloadUrl=${encodeURIComponent(result.downloadUrl)}&filename=${encodeURIComponent(result.filename)}&size=${result.size}&convertType=img2pdf`,
+        url: `/pages/result/result?downloadUrl=${encodeURIComponent(result.downloadUrl)}&filename=${encodeURIComponent(result.filename)}&size=${result.size}&convertType=img2pdf&downloadKey=${encodeURIComponent(result.downloadKey || '')}`,
       });
     } catch (err) {
       this.setData({

@@ -18,6 +18,7 @@ Page({
     tempFilePath: '',
     downloadProgress: 0,
     errorMsg: '',
+    downloadKey: '',
 
     // 主题
     theme: 'blue',
@@ -34,6 +35,7 @@ Page({
       size: parseInt(options.size || '0'),
       sizeDisplay: api.formatSize(parseInt(options.size || '0')),
       convertType: options.convertType || '',
+      downloadKey: decodeURIComponent(options.downloadKey || ''),
     });
 
     // 自动开始下载
@@ -51,7 +53,7 @@ Page({
     this.setData({ status: 'converting' });
     const ext = this.data.filename.substring(this.data.filename.lastIndexOf('.')).toLowerCase();
 
-    api.downloadFile(this.data.downloadUrl, this.data.filename)
+    api.downloadFile(this.data.downloadUrl, this.data.filename, this.data.downloadKey)
       .then((tempFilePath) => {
         this.setData({
           status: 'ready',

@@ -63,7 +63,7 @@ Page({
     try {
       const result = await api.generateBarcode(data, typeKey);
       // 先下载图片到本地再显示
-      const tempPath = await api.downloadFile(result.downloadUrl, result.filename);
+      const tempPath = await api.downloadFile(result.downloadUrl, result.filename, result.downloadKey);
       this.setData({
         generating: false,
         resultUrl: tempPath,

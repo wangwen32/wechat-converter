@@ -41,7 +41,7 @@ Page({
     try {
       const result = await api.generateQRCode(data);
       // 先下载图片到本地再显示（真机调试网络图片需要）
-      const tempPath = await api.downloadFile(result.downloadUrl, result.filename);
+      const tempPath = await api.downloadFile(result.downloadUrl, result.filename, result.downloadKey);
       this.setData({
         generating: false,
         resultUrl: tempPath,

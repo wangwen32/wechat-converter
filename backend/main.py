@@ -154,6 +154,123 @@ async def convert_remove_watermark(file: UploadFile = File(...)):
     return await _handle_conversion(file, "remove_watermark", remove_watermark, "_cleaned.pdf")
 
 
+@app.post("/api/convert/upload-base64")
+async def convert_upload_json(body: dict = Body(...)):
+    """云托管模式：通过 base64 JSON 上传文件并转换"""
+    import base64
+
+    endpoint = body.get("endpoint", "")
+    file_base64 = body.get("fileBase64", "")
+    filename = body.get("filename", "file")
+
+    if not endpoint or not file_base64:
+        raise HTTPException(400, detail="缺少参数: endpoint 或 fileBase64")
+
+    # 解码 base64
+    try:
+        file_bytes = base64.b64decode(file_base64)
+    except Exception:
+        raise HTTPException(400, detail="文件数据解码失败")
+
+    if not file_bytes:
+        raise HTTPException(400, detail="上传文件为空")
+
+    # 确定转换配置
+    convert_map = {
+        "word2pdf": (ALLOWED_EXTENSIONS["word2pdf"], word_to_pdf, ".pdf"),
+        "pdf2word": (ALLOWED_EXTENSIONS["pdf2word"], pdf_to_word, ".docx"),
+        "img2pdf": (ALLOWED_EXTENSIONS["img2pdf"], images_to_pdf, ".pdf"),
+        "remove-watermark": (ALLOWED_EXTENSIONS["remove_watermark"], remove_watermark, "_cleaned.pdf"),
+    }
+
+    if endpoint not in convert_map:
+        raise HTTPException(400, detail=f"不支持的转换类型: {endpoint}")
+
+    allowed_exts, convert_fn, output_ext = convert_map[endpoint]
+    input_ext = os.path.splitext(filename)[1].lower()
+
+    if input_ext not in allowed_exts:
+        raise HTTPException(400, detail=f"不支持的文件格式，仅支持: {', '.join(allowed_exts)}")
+
+    # 保存临时文件
+    task_id = uuid.uuid4().hex[:12]
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
+    output_filename = f"{task_id}{output_ext}"
+    output_path = os.path.join(OUTPUT_DIR, output_filename)
+
+    try:
+        with open(input_path, "wb") as f:
+            f.write(file_bytes)
+
+        logger.info("开始转换 [%s] %s (%d bytes)", endpoint, filename, len(file_bytes))
+
+        await convert_fn(input_path, output_path)
+
+        if not os.path.isfile(output_path):
+            raise RuntimeError("转换后未生成输出文件")
+
+        file_size = os.path.getsize(output_path)
+        logger.info("转换完成 [%s] %s (%d bytes)", endpoint, output_filename, file_size)
+
+        return {
+            "code": 0,
+            "message": "转换成功",
+            "data": {
+                "download_url": f"/api/download/{output_filename}",
+                "filename": os.path.splitext(filename)[0] + (output_ext if output_ext.endswith('.pdf') else output_ext),
+                "size": file_size,
+                "download_key": output_filename,
+            },
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("转换失败 [%s] %s: %s", endpoint, filename, str(e))
+        raise HTTPException(500, detail=f"转换失败: {str(e)}")
+    finally:
+        try:
+            if os.path.isfile(input_path):
+                os.remove(input_path)
+        except Exception as e:
+            logger.warning("清理上传文件失败: %s", e)
+
+
+@app.post("/api/download/json")
+async def download_json(body: dict = Body(...)):
+    """云托管模式：通过 JSON 下载文件（返回 base64）"""
+    import base64
+
+    download_key = body.get("download_key", "")
+    if not download_key:
+        raise HTTPException(400, detail="缺少参数: download_key")
+
+    filepath = os.path.join(OUTPUT_DIR, download_key)
+    if not os.path.isfile(filepath):
+        raise HTTPException(404, detail="文件不存在或已过期")
+
+    with open(filepath, "rb") as f:
+        file_bytes = f.read()
+
+    file_base64 = base64.b64encode(file_bytes).decode("utf-8")
+
+    ext = os.path.splitext(download_key)[1].lower()
+    return {
+        "code": 0,
+        "message": "下载成功",
+        "data": {
+            "file_base64": file_base64,
+            "filename": download_key,
+            "size": len(file_bytes),
+            "content_type": {
+                ".pdf": "application/pdf",
+                ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".png": "image/png",
+                ".jpg": "image/jpeg",
+            }.get(ext, "application/octet-stream"),
+        },
+    }
+
+
 @app.post("/api/generate/barcode")
 async def generate_barcode_api(
     body: dict = Body(...),
@@ -189,6 +306,7 @@ async def generate_barcode_api(
                 "filename": f"条形码_{barcode_type}.png",
                 "size": file_size,
                 "barcode_type": barcode_type,
+                "download_key": filename,
             },
         }
     except ValueError as e:
@@ -228,6 +346,7 @@ async def generate_qrcode_api(
                 "download_url": f"/api/download/{filename}",
                 "filename": "二维码.png",
                 "size": file_size,
+                "download_key": filename,
             },
         }
     except ValueError as e:
@@ -277,6 +396,7 @@ async def _handle_conversion(file: UploadFile, convert_type: str, convert_fn, ou
                 "download_url": f"/api/download/{output_filename}",
                 "filename": os.path.splitext(file.filename)[0] + output_ext,
                 "size": file_size,
+                "download_key": output_filename,
             },
         }
 

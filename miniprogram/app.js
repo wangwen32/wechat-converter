@@ -1,8 +1,15 @@
 // app.js
 App({
   globalData: {
-    baseUrl: 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com',
-    theme: 'blue',
+    // 云托管配置
+    cloudEnv: 'wechat-converter-d7e0tcl57174390',
+    cloudService: 'converter-api',
+
+    // 后端 API 地址（本地开发用）
+    baseUrl: 'http://172.22.13.20:8000',
+
+    theme: 'blue', // 'blue' | 'dark'
+    useCloud: true, // true=云托管 callContainer, false=本地局域网
   },
 
   switchTheme() {
