@@ -19,7 +19,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Optional
 
-from fastapi import FastAPI, UploadFile, File, Form, Body, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, Body, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -152,6 +152,78 @@ async def convert_remove_watermark(file: UploadFile = File(...)):
         raise HTTPException(400, detail=f"不支持的文件格式，仅支持: {', '.join(ALLOWED_EXTENSIONS['remove_watermark'])}")
 
     return await _handle_conversion(file, "remove_watermark", remove_watermark, "_cleaned.pdf")
+
+
+@app.post("/api/convert/upload-binary/{endpoint}")
+async def convert_upload_binary(endpoint: str, request: Request):
+    """云托管模式：通过二进制流上传文件并转换"""
+    from urllib.parse import unquote
+
+    file_bytes = await request.body()
+    filename = request.headers.get("X-Filename", "file")
+    if filename:
+        filename = unquote(filename)
+
+    if not file_bytes:
+        raise HTTPException(400, detail="上传文件为空")
+
+    # 确定转换配置
+    convert_map = {
+        "word2pdf": (ALLOWED_EXTENSIONS["word2pdf"], word_to_pdf, ".pdf"),
+        "pdf2word": (ALLOWED_EXTENSIONS["pdf2word"], pdf_to_word, ".docx"),
+        "img2pdf": (ALLOWED_EXTENSIONS["img2pdf"], images_to_pdf, ".pdf"),
+        "remove-watermark": (ALLOWED_EXTENSIONS["remove_watermark"], remove_watermark, "_cleaned.pdf"),
+    }
+
+    if endpoint not in convert_map:
+        raise HTTPException(400, detail=f"不支持的转换类型: {endpoint}")
+
+    allowed_exts, convert_fn, output_ext = convert_map[endpoint]
+    input_ext = os.path.splitext(filename)[1].lower()
+
+    if input_ext not in allowed_exts:
+        raise HTTPException(400, detail=f"不支持的文件格式，仅支持: {', '.join(allowed_exts)}")
+
+    # 保存临时文件
+    task_id = uuid.uuid4().hex[:12]
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
+    output_filename = f"{task_id}{output_ext}"
+    output_path = os.path.join(OUTPUT_DIR, output_filename)
+
+    try:
+        with open(input_path, "wb") as f:
+            f.write(file_bytes)
+
+        logger.info("开始转换 [%s] %s (%d bytes)", endpoint, filename, len(file_bytes))
+        await convert_fn(input_path, output_path)
+
+        if not os.path.isfile(output_path):
+            raise RuntimeError("转换后未生成输出文件")
+
+        file_size = os.path.getsize(output_path)
+        logger.info("转换完成 [%s] %s (%d bytes)", endpoint, output_filename, file_size)
+
+        return {
+            "code": 0,
+            "message": "转换成功",
+            "data": {
+                "download_url": f"/api/download/{output_filename}",
+                "filename": os.path.splitext(filename)[0] + (output_ext if output_ext.endswith('.pdf') else output_ext),
+                "size": file_size,
+                "download_key": output_filename,
+            },
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("转换失败 [%s] %s: %s", endpoint, filename, str(e))
+        raise HTTPException(500, detail=f"转换失败: {str(e)}")
+    finally:
+        try:
+            if os.path.isfile(input_path):
+                os.remove(input_path)
+        except Exception as e:
+            logger.warning("清理上传文件失败: %s", e)
 
 
 @app.post("/api/convert/upload-base64")
