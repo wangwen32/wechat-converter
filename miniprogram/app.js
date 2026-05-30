@@ -3,7 +3,7 @@ App({
   globalData: {
     // 后端 API 地址 — 开发时用局域网 IP，上线后改 HTTPS 域名
     baseUrl: 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com',
-    theme: 'dark', // 'blue' | 'dark'
+    theme: 'blue', // 'blue' | 'dark'
   },
 
   // 切换主题
@@ -21,7 +21,7 @@ App({
 
   // 初始化主题
   initTheme() {
-    const saved = wx.getStorageSync('theme') || 'dark';
+    const saved = wx.getStorageSync('theme') || 'blue';
     this.globalData.theme = saved;
     // 更新导航栏
     wx.setNavigationBarColor({

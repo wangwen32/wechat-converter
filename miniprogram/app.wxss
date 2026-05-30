@@ -21,7 +21,7 @@ page {
    白天主题（默认）
    ══════════════════════════════════════════ */
 page {
-  background: #FAF5EF;
+  background: linear-gradient(180deg, #FFF8F0 0%, #FAF0E6 100%);
   color: #1A2332;
 }
 
