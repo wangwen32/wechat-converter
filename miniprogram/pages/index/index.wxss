@@ -126,9 +126,7 @@
 .func-card {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 18px;
   padding: 18px 20px;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);

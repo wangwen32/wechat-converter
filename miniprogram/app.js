@@ -2,7 +2,7 @@
 App({
   globalData: {
     // 后端 API 地址 — 开发时用局域网 IP，上线后改 HTTPS 域名
-    baseUrl: 'http://172.22.13.20:8000',
+    baseUrl: 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com',
     theme: 'dark', // 'blue' | 'dark'
   },
 
