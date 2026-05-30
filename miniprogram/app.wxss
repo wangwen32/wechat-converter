@@ -21,18 +21,8 @@ page {
    白天主题（默认）
    ══════════════════════════════════════════ */
 page {
-  background: #FFF8F0;
+  background: #FAF5EF;
   color: #1A2332;
-}
-
-/* 背景渐变由各个页面的 .container 实现，
-   因为 page 元素无法通过类名切换主题 */
-.container {
-  background: linear-gradient(180deg, #FFF8F0 0%, #FAF0E6 100%);
-}
-
-.theme-dark {
-  background: linear-gradient(180deg, #0A1628 0%, #050A12 100%);
 }
 
 /* ── 主按钮 ── */
