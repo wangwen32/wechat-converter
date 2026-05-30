@@ -12,6 +12,13 @@ App({
     useCloud: true, // true=云托管 callContainer, false=本地局域网
   },
 
+  onLaunch() {
+    // 初始化云开发环境
+    wx.cloud.init({
+      env: this.globalData.cloudEnv,
+    });
+  },
+
   switchTheme() {
     const newTheme = this.globalData.theme === 'blue' ? 'dark' : 'blue';
     this.globalData.theme = newTheme;
