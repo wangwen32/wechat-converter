@@ -14,8 +14,17 @@ page {
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
     'PingFang SC', 'Microsoft YaHei', sans-serif;
   box-sizing: border-box;
-  background: linear-gradient(180deg, #FFF8F0 0%, #FAF0E6 100%);
+  background: #FFF8F0;
   color: #1A2332;
+}
+
+/* 渐变背景由 .container 实现，确保页面切换颜色统一 */
+.container {
+  background: linear-gradient(180deg, #FFF8F0 0%, #FAF0E6 100%);
+}
+
+.theme-dark {
+  background: linear-gradient(180deg, #0A1628 0%, #050A12 100%);
 }
 
 /* ── 主按钮 ── */
