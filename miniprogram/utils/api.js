@@ -153,8 +153,9 @@ function uploadAndConvert(convertType, filePath, fileName, onProgress) {
  */
 async function downloadFromCloud(downloadUrl, filename, downloadKey) {
   // 通过 callContainer 获取文件数据
+  const key = downloadKey || filename || 'file';
   const data = await callContainer('/api/download/json', 'POST', {
-    download_key: downloadKey || filename,
+    download_key: key,
   });
 
   // 保存文件到本地
@@ -162,7 +163,9 @@ async function downloadFromCloud(downloadUrl, filename, downloadKey) {
   const tempDir = `${wx.env.USER_DATA_PATH}/downloads`;
   try { fs.mkdirSync(tempDir); } catch(e) {}
 
-  const tempPath = `${tempDir}/${filename || 'file'}`;
+  // 用 downloadKey 做文件名（避免中文路径问题）
+  const safeName = key.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const tempPath = `${tempDir}/${safeName}`;
   const arrayBuffer = base64ToArrayBuffer(data.data.file_base64);
   fs.writeFileSync(tempPath, arrayBuffer);
 
