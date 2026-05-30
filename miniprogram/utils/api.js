@@ -1,35 +1,23 @@
 /**
- * API 工具模块 — 纯云托管 callContainer 模式
+ * API 工具模块 — 云托管域名直连模式
  */
 const app = getApp();
-
-function getCloudConfig() {
-  return { env: app.globalData.cloudEnv };
-}
-
-function getServiceHeader() {
-  return { 'X-WX-SERVICE': app.globalData.cloudService };
-}
+const CLOUD_HOST = 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com';
 
 function getBaseUrl() {
   return app.globalData.baseUrl;
 }
 
 /**
- * 调用云托管 API（JSON 请求）
+ * 通用请求（云托管用域名，本地用局域网）
  */
-function callContainer(path, method, data, options = {}) {
+function request(path, method, data, options = {}) {
   return new Promise((resolve, reject) => {
-    const header = {
-      ...getServiceHeader(),
-      'content-type': 'application/json',
-      ...(options.header || {}),
-    };
-    wx.cloud.callContainer({
-      config: getCloudConfig(),
-      path,
-      method,
-      header,
+    const baseUrl = app.globalData.useCloud ? CLOUD_HOST : getBaseUrl();
+    const url = `${baseUrl}${path}`;
+    wx.request({
+      url, method,
+      header: { 'content-type': 'application/json', ...(options.header || {}) },
       data,
       success(res) {
         if (res.statusCode !== 200) {
@@ -47,61 +35,12 @@ function callContainer(path, method, data, options = {}) {
 }
 
 /**
- * 二进制流上传 — 通过 callContainer 发送 ArrayBuffer
+ * 上传文件并转换
  */
-function uploadBinary(endpoint, filePath, fileName) {
+function uploadAndConvert(convertType, filePath, fileName, onProgress) {
   return new Promise((resolve, reject) => {
-    const fs = wx.getFileSystemManager();
-    try {
-      const arrayBuffer = fs.readFileSync(filePath);
-      const header = {
-        ...getServiceHeader(),
-        'Content-Type': 'application/octet-stream',
-        'X-Filename': encodeURIComponent(fileName || 'file'),
-      };
-      wx.cloud.callContainer({
-        config: getCloudConfig(),
-        path: `/api/convert/upload-binary/${endpoint}`,
-        method: 'POST',
-        header,
-        data: arrayBuffer,
-        success(res) {
-          if (res.statusCode !== 200) {
-            const detail = (res.data && (res.data.detail || res.data.message)) || '';
-            reject(new Error(detail || `服务器错误 (${res.statusCode})`));
-            return;
-          }
-          resolve(res.data);
-        },
-        fail(err) {
-          reject(new Error(err.errMsg || '上传失败'));
-        },
-      });
-    } catch (e) {
-      reject(new Error('读取文件失败: ' + e.message));
-    }
-  });
-}
-
-/**
- * 上传文件并转换（云托管模式 - 二进制上传）
- */
-async function uploadAndCloudConvert(convertType, filePath, fileName) {
-  const body = await uploadBinary(convertType, filePath, fileName);
-  return {
-    downloadUrl: body.data.download_url,
-    filename: body.data.filename,
-    size: body.data.size,
-    downloadKey: body.data.download_key,
-  };
-}
-
-/**
- * 上传文件并转换（本地调试模式）
- */
-function uploadAndConvertLegacy(convertType, filePath, fileName, onProgress) {
-  return new Promise((resolve, reject) => {
-    const url = `${getBaseUrl()}/api/convert/${convertType}`;
+    const baseUrl = app.globalData.useCloud ? CLOUD_HOST : getBaseUrl();
+    const url = `${baseUrl}/api/convert/${convertType}`;
     const uploadTask = wx.uploadFile({
       url, filePath, name: 'file', formData: {},
       success(res) {
@@ -116,7 +55,7 @@ function uploadAndConvertLegacy(convertType, filePath, fileName, onProgress) {
             return;
           }
           resolve({
-            downloadUrl: getBaseUrl() + body.data.download_url,
+            downloadUrl: body.data.download_url,
             filename: body.data.filename,
             size: body.data.size,
             downloadKey: body.data.download_key,
@@ -136,43 +75,14 @@ function uploadAndConvertLegacy(convertType, filePath, fileName, onProgress) {
 }
 
 /**
- * 上传文件并转换（自动选择）
+ * 下载文件
  */
-function uploadAndConvert(convertType, filePath, fileName, onProgress) {
-  if (app.globalData.useCloud) {
-    return uploadAndCloudConvert(convertType, filePath, fileName);
-  }
-  return uploadAndConvertLegacy(convertType, filePath, fileName, onProgress);
-}
-
-/**
- * 下载文件（云托管模式 - 通过 callContainer 下载）
- */
-async function downloadFromCloud(downloadUrl, filename, downloadKey) {
-  const key = downloadKey || filename || 'file';
-  const data = await callContainer('/api/download/json', 'POST', {
-    download_key: key,
-  });
-
-  const fs = wx.getFileSystemManager();
-  const tempDir = `${wx.env.USER_DATA_PATH}/downloads`;
-  try { fs.mkdirSync(tempDir); } catch(e) {}
-
-  const safeName = key.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const tempPath = `${tempDir}/${safeName}`;
-  const arrayBuffer = wx.base64ToArrayBuffer(data.data.file_base64);
-  fs.writeFileSync(tempPath, arrayBuffer);
-
-  return tempPath;
-}
-
-/**
- * 下载文件（本地模式）
- */
-function downloadFileLegacy(url, filename) {
+function downloadFile(url, filename, downloadKey) {
   return new Promise((resolve, reject) => {
+    const baseUrl = app.globalData.useCloud ? CLOUD_HOST : getBaseUrl();
+    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
     wx.downloadFile({
-      url,
+      url: fullUrl,
       success(res) {
         if (res.statusCode === 200) {
           resolve(res.tempFilePath);
@@ -185,16 +95,6 @@ function downloadFileLegacy(url, filename) {
       },
     });
   });
-}
-
-/**
- * 下载文件（自动选择）
- */
-function downloadFile(url, filename, downloadKey) {
-  if (app.globalData.useCloud) {
-    return downloadFromCloud(url, filename, downloadKey);
-  }
-  return downloadFileLegacy(url, filename);
 }
 
 /**
@@ -216,90 +116,27 @@ function openFile(filePath, ext) {
 /**
  * 生成条形码
  */
-async function generateBarcode(data, barcodeType = 'code128') {
-  if (app.globalData.useCloud) {
-    const body = await callContainer('/api/generate/barcode', 'POST', {
-      data, barcode_type: barcodeType,
-    });
-    return {
+function generateBarcode(data, barcodeType = 'code128') {
+  return request('/api/generate/barcode', 'POST', { data, barcode_type: barcodeType })
+    .then(body => ({
       downloadUrl: body.data.download_url,
       filename: body.data.filename,
       size: body.data.size,
       downloadKey: body.data.download_key,
-    };
-  }
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: `${getBaseUrl()}/api/generate/barcode`,
-      method: 'POST',
-      header: { 'content-type': 'application/json' },
-      data: { data, barcode_type: barcodeType },
-      success(res) {
-        if (res.statusCode !== 200) {
-          const detail = (res.data && (res.data.detail || res.data.message)) || '';
-          reject(new Error(detail || `服务器错误 (${res.statusCode})`));
-          return;
-        }
-        const body = res.data;
-        if (body.code !== 0) {
-          reject(new Error(body.message || '生成失败'));
-          return;
-        }
-        resolve({
-          downloadUrl: getBaseUrl() + body.data.download_url,
-          filename: body.data.filename,
-          size: body.data.size,
-          downloadKey: body.data.download_key,
-        });
-      },
-      fail(err) {
-        reject(new Error(err.errMsg || '网络请求失败'));
-      },
-    });
-  });
+    }));
 }
 
 /**
  * 生成二维码
  */
-async function generateQRCode(data) {
-  if (app.globalData.useCloud) {
-    const body = await callContainer('/api/generate/qrcode', 'POST', { data });
-    return {
+function generateQRCode(data) {
+  return request('/api/generate/qrcode', 'POST', { data })
+    .then(body => ({
       downloadUrl: body.data.download_url,
       filename: body.data.filename,
       size: body.data.size,
       downloadKey: body.data.download_key,
-    };
-  }
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: `${getBaseUrl()}/api/generate/qrcode`,
-      method: 'POST',
-      header: { 'content-type': 'application/json' },
-      data: { data },
-      success(res) {
-        if (res.statusCode !== 200) {
-          const detail = (res.data && (res.data.detail || res.data.message)) || '';
-          reject(new Error(detail || `服务器错误 (${res.statusCode})`));
-          return;
-        }
-        const body = res.data;
-        if (body.code !== 0) {
-          reject(new Error(body.message || '生成失败'));
-          return;
-        }
-        resolve({
-          downloadUrl: getBaseUrl() + body.data.download_url,
-          filename: body.data.filename,
-          size: body.data.size,
-        });
-      },
-      fail(err) {
-        reject(new Error(err.errMsg || '网络请求失败'));
-      },
-    });
-  });
+    }));
 }
 
 /**
@@ -320,8 +157,7 @@ function saveImageToAlbum(imageUrl) {
           fail(err) {
             if (err.errMsg && err.errMsg.includes('auth deny')) {
               wx.showModal({
-                title: '提示',
-                content: '需要相册权限才能保存图片',
+                title: '提示', content: '需要相册权限才能保存图片',
                 success(m) { if (m.confirm) wx.openSetting(); },
               });
             }
@@ -336,9 +172,6 @@ function saveImageToAlbum(imageUrl) {
   });
 }
 
-/**
- * 格式化文件大小
- */
 function formatSize(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -346,12 +179,6 @@ function formatSize(bytes) {
 }
 
 module.exports = {
-  getBaseUrl,
-  uploadAndConvert,
-  downloadFile,
-  openFile,
-  formatSize,
-  generateBarcode,
-  generateQRCode,
-  saveImageToAlbum,
+  getBaseUrl, uploadAndConvert, downloadFile, openFile, formatSize,
+  generateBarcode, generateQRCode, saveImageToAlbum,
 };
