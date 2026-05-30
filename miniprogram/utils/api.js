@@ -79,22 +79,45 @@ function base64ToArrayBuffer(base64) {
 }
 
 /**
- * 上传文件并转换（云托管模式）
+ * 上传文件并转换（云托管模式 - 直接用域名请求）
  */
-async function uploadAndCloudConvert(convertType, filePath, fileName) {
-  const fileBase64 = await fileToBase64(filePath);
-  const data = await callContainer('/api/convert/upload-base64', 'POST', {
-    endpoint: convertType,
-    fileBase64,
-    filename: fileName || 'file',
+function uploadAndCloudConvert(convertType, filePath, fileName, onProgress) {
+  return new Promise((resolve, reject) => {
+    const url = `https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com/api/convert/${convertType}`;
+    const uploadTask = wx.uploadFile({
+      url,
+      filePath,
+      name: 'file',
+      formData: {},
+      success(res) {
+        if (res.statusCode !== 200) {
+          reject(new Error(`服务器错误 (${res.statusCode})`));
+          return;
+        }
+        try {
+          const body = JSON.parse(res.data);
+          if (body.code !== 0) {
+            reject(new Error(body.message || '转换失败'));
+            return;
+          }
+          resolve({
+            downloadUrl: body.data.download_url,
+            filename: body.data.filename,
+            size: body.data.size,
+            downloadKey: body.data.download_key,
+          });
+        } catch (e) {
+          reject(new Error('解析响应失败: ' + e.message));
+        }
+      },
+      fail(err) {
+        reject(new Error(err.errMsg || '网络请求失败'));
+      },
+    });
+    if (onProgress) {
+      uploadTask.onProgressUpdate((res) => onProgress(res.progress));
+    }
   });
-
-  return {
-    downloadUrl: data.data.download_url,
-    filename: data.data.filename,
-    size: data.data.size,
-    downloadKey: data.data.download_key,
-  };
 }
 
 /**
@@ -149,27 +172,25 @@ function uploadAndConvert(convertType, filePath, fileName, onProgress) {
 }
 
 /**
- * 下载文件（云托管模式）
+ * 下载文件（云托管模式 - 直接用域名下载）
  */
-async function downloadFromCloud(downloadUrl, filename, downloadKey) {
-  // 通过 callContainer 获取文件数据
-  const key = downloadKey || filename || 'file';
-  const data = await callContainer('/api/download/json', 'POST', {
-    download_key: key,
+function downloadFromCloud(downloadUrl, filename, downloadKey) {
+  return new Promise((resolve, reject) => {
+    const url = `https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com${downloadUrl || ('/api/download/' + downloadKey)}`;
+    wx.downloadFile({
+      url,
+      success(res) {
+        if (res.statusCode === 200) {
+          resolve(res.tempFilePath);
+        } else {
+          reject(new Error(`下载失败 (${res.statusCode})`));
+        }
+      },
+      fail(err) {
+        reject(new Error(err.errMsg || '下载失败'));
+      },
+    });
   });
-
-  // 保存文件到本地
-  const fs = wx.getFileSystemManager();
-  const tempDir = `${wx.env.USER_DATA_PATH}/downloads`;
-  try { fs.mkdirSync(tempDir); } catch(e) {}
-
-  // 用 downloadKey 做文件名（避免中文路径问题）
-  const safeName = key.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const tempPath = `${tempDir}/${safeName}`;
-  const arrayBuffer = base64ToArrayBuffer(data.data.file_base64);
-  fs.writeFileSync(tempPath, arrayBuffer);
-
-  return tempPath;
 }
 
 /**
