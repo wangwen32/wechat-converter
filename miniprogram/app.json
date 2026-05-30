@@ -1,0 +1,20 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/convert/convert",
+    "pages/result/result",
+    "pages/img2pdf/img2pdf",
+    "pages/barcode/barcode",
+    "pages/qrcode/qrcode",
+    "pages/remove-watermark/remove-watermark",
+    "pages/more/more"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#1A1A1A",
+    "navigationBarTitleText": "PDF文档转换",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F0F5FF"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

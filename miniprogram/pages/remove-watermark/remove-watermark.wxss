@@ -1,0 +1,13 @@
+/* ══════════════════════════════════════════
+   PDF去水印页
+   ══════════════════════════════════════════ */
+
+@import '../convert/convert.wxss';
+
+.info-card { margin-bottom: 4px; }
+.info-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; line-height: 1.5; }
+.info-item.info-last { margin-bottom: 0; }
+.info-dot { font-size: 14px; color: #2B5CE8; flex-shrink: 0; }
+.info-text { font-size: 13px; color: rgba(0,0,0,0.5); }
+.info-item.warn .info-dot { color: #F59E0B; }
+.info-item.warn .info-text { color: #D97706; }

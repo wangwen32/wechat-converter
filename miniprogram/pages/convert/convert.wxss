@@ -1,0 +1,102 @@
+/* ══════════════════════════════════════════
+   转换页 — 白天米白 / 夜间深蓝
+   ══════════════════════════════════════════ */
+
+.container { display: flex; flex-direction: column; padding: 0; min-height: 100vh; }
+
+/* ── 步骤指示器 ── */
+.step-indicator {
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px 32px 12px;
+}
+.step-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.step-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(0, 0, 0, 0.12);
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  transition: all 0.3s;
+}
+.step-item.active .step-dot {
+  background: #2B5CE8; border-color: #2B5CE8;
+  box-shadow: 0 0 0 4px rgba(43, 92, 232, 0.15);
+}
+.step-label { font-size: 11px; color: rgba(0, 0, 0, 0.3); transition: color 0.3s; }
+.step-item.active .step-label { color: #2B5CE8; font-weight: 500; }
+.step-line {
+  width: 40px; height: 2px; background: rgba(0, 0, 0, 0.1);
+  margin: 0 4px 24px;
+}
+
+/* ── 类型标签 ── */
+.type-badge { display: flex; justify-content: center; padding: 8px 0 6px; font-size: 13px; color: rgba(0, 0, 0, 0.4); font-weight: 500; letter-spacing: 2px; }
+
+/* ── 选择文件 ── */
+.upload-area {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 156px; border: 2px dashed rgba(0, 0, 0, 0.12);
+  border-radius: 14px; background: rgba(255, 255, 255, 0.4);
+  cursor: pointer; transition: all 0.2s;
+}
+.upload-area:active { border-color: #2B5CE8; background: rgba(43, 92, 232, 0.05); }
+.upload-icon-bg {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
+}
+.upload-icon { font-size: 26px; }
+.upload-text { font-size: 15px; color: #1A2332; font-weight: 500; margin-bottom: 4px; }
+.upload-hint { font-size: 12px; color: rgba(0, 0, 0, 0.3); }
+
+/* ── 文件信息 ── */
+.file-info {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px; padding: 14px;
+  background: rgba(255, 255, 255, 0.5);
+}
+.file-row { display: flex; align-items: center; }
+.file-icon-wrapper {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex; align-items: center; justify-content: center;
+  margin-right: 12px; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.file-icon { font-size: 22px; }
+.file-detail { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.file-name { font-size: 14px; font-weight: 500; color: #1A2332; word-break: break-all; line-height: 1.4; }
+.file-size { font-size: 12px; color: rgba(0, 0, 0, 0.35); }
+.file-clear {
+  width: 26px; height: 26px; line-height: 26px; text-align: center;
+  font-size: 12px; color: rgba(0, 0, 0, 0.3);
+  border-radius: 50%; background: rgba(0, 0, 0, 0.04);
+  flex-shrink: 0; margin-left: 8px;
+}
+.file-clear:active { background: rgba(0, 0, 0, 0.08); }
+
+/* ── 加载状态 ── */
+.loading-area { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px 0; }
+.loading-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(0, 0, 0, 0.08);
+  border-top-color: #2B5CE8;
+  border-radius: 50%;
+  animation: spin 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+.loading-text { font-size: 15px; color: #1A2332; font-weight: 500; }
+.loading-hint { font-size: 12px; color: rgba(0, 0, 0, 0.3); }
+
+/* ── 错误 ── */
+.error-area { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 8px 0; }
+.error-icon { font-size: 36px; }
+.error-text { font-size: 14px; color: #E74C3C; text-align: center; line-height: 1.5; }
+.btn-retry {
+  width: 120px; height: 38px; line-height: 38px;
+  font-size: 14px; color: #2B5CE8;
+  background: rgba(43, 92, 232, 0.08);
+  border-radius: 10px; text-align: center; border: none; margin-top: 4px;
+}
+.btn-retry:active { opacity: 0.7; }
+
+/* ── 提示 ── */
+.tips { margin-top: 4px; }
+.tip-item { font-size: 13px; color: rgba(0, 0, 0, 0.35); line-height: 1.9; }

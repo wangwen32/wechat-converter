@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(node -e ' *)",
+      "Bash(ipconfig)",
+      "Bash(pip install *)",
+      "Bash(python main.py)",
+      "Bash(curl -s http://localhost:8000/api/convert/status)",
+      "Bash(curl -s -X POST http://localhost:8000/api/generate/barcode -d data=1234567890 -d barcode_type=code128)",
+      "Bash(curl -s -X POST http://localhost:8000/api/generate/qrcode -d data=https://weixin.qq.com)",
+      "Bash(curl -s -X POST http://localhost:8000/api/convert/img2pdf -F file=@/tmp/test_img2pdf.png)",
+      "Bash(curl -s -X POST http://localhost:8000/api/convert/img2pdf -F file=@__TRACKED_VAR__)",
+      "Bash(curl -s -X POST http://localhost:8000/api/convert/img2pdf -F file=@C:/Users/wangw/AppData/Local/Temp/claude/test_img2pdf.png)",
+      "Bash(taskkill /F /IM python.exe)",
+      "Bash(curl -s -X POST http://localhost:8000/api/convert/pdf2word)",
+      "Bash(echo \"hello\")",
+      "Bash(curl -s -X POST http://localhost:8000/api/convert/word2pdf -F file=@/tmp/test.docx)",
+      "Bash(curl -s -X POST http://localhost:8000/api/convert/pdf2word -F file=@/tmp/test_pdf2word.pdf)",
+      "Bash(curl -s -X POST http://localhost:8000/api/convert/remove-watermark -F file=@/tmp/test_pdf2word.pdf)",
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "Bash(docker info *)",
+      "Bash(\"C:/Program Files/Docker/Docker/Docker Desktop.exe\")",
+      "Bash(wsl --status)",
+      "Bash(wsl -l -v)"
+    ]
+  }
+}

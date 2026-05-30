@@ -1,0 +1,111 @@
+<!-- pages/index/index.wxml -->
+<view class="container {{themeClass}}">
+  <!-- 头部 -->
+  <view class="header animate-header">
+    <view class="header-top">
+      <view class="logo-wrapper animate-logo">
+        <text class="logo-icon">📄</text>
+        <view class="logo-glow"></view>
+      </view>
+      <view class="theme-toggle" bindtap="onToggleTheme">
+        <text wx:if="{{ theme === 'blue' }}">🌙</text>
+        <text wx:else>☀️</text>
+      </view>
+    </view>
+    <text class="title animate-title">文档格式转换</text>
+    <text class="subtitle animate-subtitle">PDF ↔ Word 双向转换 · 快速高效</text>
+  </view>
+
+  <!-- 功能入口卡片 -->
+  <view class="card-list">
+    <view class="func-card animate-card card-1" bindtap="onPdfToWord">
+      <view class="func-icon pdf-bg">
+        <text class="icon-text">📄</text>
+      </view>
+      <view class="func-info">
+        <text class="func-title">PDF → Word</text>
+        <text class="func-desc">将 PDF 文件转换为可编辑的 Word 文档</text>
+        <view class="func-tag">推荐</view>
+      </view>
+      <view class="arrow-circle">
+        <text class="arrow">→</text>
+      </view>
+    </view>
+
+    <view class="func-card animate-card card-2" bindtap="onWordToPdf">
+      <view class="func-icon word-bg">
+        <text class="icon-text">📝</text>
+      </view>
+      <view class="func-info">
+        <text class="func-title">Word → PDF</text>
+        <text class="func-desc">将 Word 文档转换为 PDF 格式</text>
+      </view>
+      <view class="arrow-circle">
+        <text class="arrow">→</text>
+      </view>
+    </view>
+
+    <view class="func-card animate-card card-3" bindtap="onImgToPdf">
+      <view class="func-icon img-bg">
+        <text class="icon-text">🖼️</text>
+      </view>
+      <view class="func-info">
+        <text class="func-title">图片 → PDF</text>
+        <text class="func-desc">将 JPG/PNG 图片转换为 PDF 文档</text>
+      </view>
+      <view class="arrow-circle">
+        <text class="arrow">→</text>
+      </view>
+    </view>
+
+    <view class="func-card animate-card card-4" bindtap="onBarcode">
+      <view class="func-icon barcode-bg">
+        <text class="icon-text">〰️</text>
+      </view>
+      <view class="func-info">
+        <text class="func-title">条形码生成</text>
+        <text class="func-desc">生成 Code128 / EAN-13 等多种条形码</text>
+      </view>
+      <view class="arrow-circle">
+        <text class="arrow">→</text>
+      </view>
+    </view>
+
+    <view class="func-card animate-card card-5" bindtap="onQRCode">
+      <view class="func-icon qrcode-bg">
+        <text class="icon-text">📱</text>
+      </view>
+      <view class="func-info">
+        <text class="func-title">二维码生成</text>
+        <text class="func-desc">将文本或链接生成二维码图片</text>
+      </view>
+      <view class="arrow-circle">
+        <text class="arrow">→</text>
+      </view>
+    </view>
+
+    <view class="func-card animate-card card-6" bindtap="onRemoveWatermark">
+      <view class="func-icon watermark-bg">
+        <text class="icon-text">🧹</text>
+      </view>
+      <view class="func-info">
+        <text class="func-title">PDF 去水印</text>
+        <text class="func-desc">移除 PDF 文档中的水印内容</text>
+      </view>
+      <view class="arrow-circle">
+        <text class="arrow">→</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 更多选项入口 -->
+  <view class="more-entry animate-more" bindtap="onMore">
+    <text class="more-text">更多选项</text>
+    <text class="more-arrow">›</text>
+  </view>
+
+  <!-- 底部 -->
+  <view class="footer">
+    <text class="footer-text">文件不会保存到服务器，请及时下载</text>
+  </view>
+</view>

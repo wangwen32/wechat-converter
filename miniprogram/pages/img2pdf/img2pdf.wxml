@@ -1,0 +1,88 @@
+<!-- pages/img2pdf/img2pdf.wxml -->
+<view class="container {{themeClass}}">
+  <!-- 步骤指示器 -->
+  <view class="step-indicator">
+    <view class="step-item active">
+      <view class="step-dot"></view>
+      <text class="step-label">选择图片</text>
+    </view>
+    <view class="step-line"></view>
+    <view class="step-item {{ status === 'uploading' || status === 'converting' ? 'active' : '' }}">
+      <view class="step-dot"></view>
+      <text class="step-label">转换中</text>
+    </view>
+    <view class="step-line"></view>
+    <view class="step-item">
+      <view class="step-dot"></view>
+      <text class="step-label">完成</text>
+    </view>
+  </view>
+
+  <!-- 标题 -->
+  <view class="type-badge">
+    <text>🖼️ 图片 → PDF</text>
+  </view>
+
+  <!-- 图片选择 -->
+  <view class="card">
+    <view class="section-title">选择图片</view>
+
+    <view wx:if="{{ !selected }}" class="upload-area" bindtap="onChooseImage">
+      <view class="upload-icon-bg">
+        <text class="upload-icon">🖼️</text>
+      </view>
+      <text class="upload-text">点击选择图片</text>
+      <text class="upload-hint">支持 JPG / PNG / BMP / WebP，最大 50MB</text>
+    </view>
+
+    <view wx:else class="preview-area">
+      <image class="preview-img" src="{{ tempImagePath }}" mode="aspectFit"></image>
+      <view class="file-row" style="margin-top: 12px;">
+        <view class="file-icon-wrapper">
+          <text class="file-icon">🖼️</text>
+        </view>
+        <view class="file-detail">
+          <text class="file-name">{{ fileName }}</text>
+          <text class="file-size">{{ fileSize }}</text>
+        </view>
+        <view class="file-clear" bindtap="onClearFile">
+          <text>✕</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 转换区域 -->
+  <view class="card" wx:if="{{ selected }}">
+    <view class="section-title">开始转换</view>
+
+    <button
+      wx:if="{{ status === 'idle' || status === 'error' }}"
+      class="btn-primary btn-press"
+      bindtap="onStartConvert"
+    >
+      <text wx:if="{{ status === 'error' }}">⟳ 重新转换</text>
+      <text wx:else>🚀 开始转换</text>
+    </button>
+
+    <view wx:elif="{{ status === 'uploading' || status === 'converting' }}" class="loading-area">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">{{ status === 'uploading' ? '📤 上传中...' : '⚙️ 转换中...' }}</text>
+      <text class="loading-hint">请勿退出页面</text>
+    </view>
+
+    <view wx:if="{{ status === 'error' }}" class="error-area">
+      <text class="error-icon">⚠️</text>
+      <text class="error-text">{{ errorMsg }}</text>
+      <button class="btn-retry btn-press" bindtap="onRetry">重试</button>
+    </view>
+  </view>
+
+  <!-- 使用提示 -->
+  <view class="card tips">
+    <view class="section-title">使用提示</view>
+    <view class="tip-item">· 支持 JPG、PNG、BMP、WebP 等常见格式</view>
+    <view class="tip-item">· 单张图片最大支持 50MB</view>
+    <view class="tip-item">· 图片越清晰，生成的 PDF 质量越高</view>
+  </view>
+</view>

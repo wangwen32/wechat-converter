@@ -1,0 +1,411 @@
+/* ══════════════════════════════════════════
+   全局样式 — 双主题
+   ══════════════════════════════════════════ */
+
+/* ── 白天（默认）：米白/奶白渐变 ── */
+/* 背景: #FFF8F0 → #FAF0E6  卡片: 玻璃白 */
+/* 文字: #1A2332 / #5A6A7E / #8E9EB2 */
+/* 主色: #2B5CE8  辅色: #4A7CF7 */
+
+/* ── 夜间 (.theme-dark)：深蓝/黑渐变 ── */
+/* 背景: #0A1628 → #050A12  卡片: 玻璃深色 */
+/* 文字: #FFFFFF / rgba(255,255,255,0.6) */
+
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    'PingFang SC', 'Microsoft YaHei', sans-serif;
+  box-sizing: border-box;
+}
+
+/* ══════════════════════════════════════════
+   白天主题（默认）
+   ══════════════════════════════════════════ */
+page {
+  background: #FFF8F0;
+  color: #1A2332;
+}
+
+/* 背景渐变由各个页面的 .container 实现，
+   因为 page 元素无法通过类名切换主题 */
+.container {
+  background: linear-gradient(180deg, #FFF8F0 0%, #FAF0E6 100%);
+}
+
+.theme-dark {
+  background: linear-gradient(180deg, #0A1628 0%, #050A12 100%);
+}
+
+/* ── 主按钮 ── */
+.btn-primary {
+  width: 90%;
+  height: 48px;
+  line-height: 48px;
+  background: linear-gradient(135deg, #2B5CE8, #4A7CF7);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  border-radius: 12px;
+  text-align: center;
+  border: none;
+  box-shadow: 0 4px 20px rgba(43, 92, 232, 0.35);
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:active {
+  opacity: 0.88;
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(43, 92, 232, 0.25);
+}
+
+.btn-primary[disabled] {
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: none;
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* ── 玻璃卡片 ── */
+.card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 10px 16px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* ── 章节标题 ── */
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1A2332;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 15px;
+  background: linear-gradient(180deg, #2B5CE8, #4A7CF7);
+  border-radius: 2px;
+  margin-right: 4px;
+}
+
+/* ── 链接文字 ── */
+.link-text {
+  font-size: 14px;
+  color: #2B5CE8;
+  padding: 4px 0;
+}
+
+/* ── 工具类 ── */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 按钮按压 ── */
+.btn-press {
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+.btn-press:active {
+  transform: scale(0.96) !important;
+}
+
+/* ══════════════════════════════════════════
+   夜间主题（深蓝→黑渐变）
+   ══════════════════════════════════════════ */
+.theme-dark .card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.theme-dark .section-title {
+  color: #FFFFFF;
+}
+
+.theme-dark .section-title::before {
+  background: linear-gradient(180deg, #4A7CF7, #7BA3FF);
+}
+
+.theme-dark .link-text {
+  color: #4A7CF7;
+}
+
+.theme-dark .btn-primary {
+  background: linear-gradient(135deg, #3A6CE8, #5A8CF7);
+  box-shadow: 0 4px 16px rgba(74, 124, 247, 0.25);
+}
+
+.theme-dark .btn-primary[disabled] {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── 夜间主题 - 通用文字 ── */
+.theme-dark .status-text,
+.theme-dark .success-title,
+.theme-dark .page-title,
+.theme-dark .func-title,
+.theme-dark .title,
+.theme-dark .menu-title,
+.theme-dark .loading-text,
+.theme-dark .upload-text,
+.theme-dark .file-name {
+  color: #FFFFFF;
+}
+
+.theme-dark .subtitle,
+.theme-dark .func-desc,
+.theme-dark .status-hint,
+.theme-dark .upload-hint,
+.theme-dark .footer-text,
+.theme-dark .result-label,
+.theme-dark .tip-item,
+.theme-dark .feature-text,
+.theme-dark .menu-desc,
+.theme-dark .page-desc,
+.theme-dark .more-text,
+.theme-dark .more-arrow,
+.theme-dark .file-size,
+.theme-dark .loading-hint,
+.theme-dark .result-info-label {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── 夜间主题 - 输入框 ── */
+.theme-dark .text-input,
+.theme-dark .text-area {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+
+.theme-dark .text-input:focus,
+.theme-dark .text-area:focus {
+  border-color: #4A7CF7;
+}
+
+.theme-dark .input-placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.theme-dark .picker-box {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .picker-label {
+  color: #FFFFFF;
+}
+
+.theme-dark .picker-arrow {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── 夜间主题 - 功能卡片 ── */
+.theme-dark .func-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.theme-dark .arrow-circle {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .arrow {
+  color: #4A7CF7;
+}
+
+/* ── 夜间主题 - 上传区 ── */
+.theme-dark .upload-area {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.theme-dark .upload-area:active {
+  border-color: #4A7CF7;
+  background: rgba(74, 124, 247, 0.08);
+}
+
+.theme-dark .upload-icon-bg {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.theme-dark .file-info {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .file-icon-wrapper {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.theme-dark .file-clear {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.theme-dark .file-clear:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── 夜间主题 - 进度条 ── */
+.theme-dark .progress-label {
+  color: #FFFFFF;
+}
+
+.theme-dark .progress-bar-bg {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .progress-pct {
+  color: #4A7CF7;
+}
+
+/* ── 夜间主题 - 步骤条 ── */
+.theme-dark .step-dot {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.theme-dark .step-item.active .step-dot {
+  background: #4A7CF7;
+  border-color: #4A7CF7;
+}
+
+.theme-dark .step-label {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.theme-dark .step-item.active .step-label {
+  color: #4A7CF7;
+}
+
+.theme-dark .step-line {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ── 夜间主题 - 类型标签 ── */
+.theme-dark .type-badge {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── 夜间主题 - 错误 ── */
+.theme-dark .error-text {
+  color: #FF6B6B;
+}
+
+.theme-dark .btn-retry {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── 夜间主题 - 结果页 ── */
+.theme-dark .spinner {
+  border-color: rgba(255, 255, 255, 0.1);
+  border-top-color: #4A7CF7;
+}
+
+.theme-dark .result-divider {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.theme-dark .result-value {
+  color: #FFFFFF;
+}
+
+.theme-dark .link-divider {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.theme-dark .btn-save {
+  background: rgba(255, 255, 255, 0.08);
+  color: #4A7CF7;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .btn-copy {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+}
+
+/* ── 夜间主题 - 更多页 ── */
+.theme-dark .menu-arrow {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.theme-dark .menu-divider {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.theme-dark .switch-track {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.theme-dark .switch-track.switch-on {
+  background: #2B5CE8;
+}
+
+/* ── 夜间主题 - 底部 ── */
+.theme-dark .footer-text {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── 夜间主题 - 特性展示 ── */
+.theme-dark .feature-divider {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .theme-toggle {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── 夜间主题 - 提示卡片 ── */
+.theme-dark .tip-bold {
+  color: #FFFFFF;
+}
+
+/* ══════════════════════════════════════════
+   全局动画
+   ══════════════════════════════════════════ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(400px) rotate(720deg); opacity: 0; }
+}
+@keyframes ripple {
+  0% { width: 72px; height: 72px; opacity: 0.4; }
+  100% { width: 160px; height: 160px; opacity: 0; }
+}

@@ -1,0 +1,108 @@
+<!-- pages/remove-watermark/remove-watermark.wxml -->
+<view class="container {{themeClass}}">
+  <!-- 步骤指示器 -->
+  <view class="step-indicator">
+    <view class="step-item active">
+      <view class="step-dot"></view>
+      <text class="step-label">选择 PDF</text>
+    </view>
+    <view class="step-line"></view>
+    <view class="step-item {{ status === 'uploading' || status === 'converting' ? 'active' : '' }}">
+      <view class="step-dot"></view>
+      <text class="step-label">处理中</text>
+    </view>
+    <view class="step-line"></view>
+    <view class="step-item">
+      <view class="step-dot"></view>
+      <text class="step-label">完成</text>
+    </view>
+  </view>
+
+  <!-- 标题 -->
+  <view class="type-badge">
+    <text>🧹 PDF 去水印</text>
+  </view>
+
+  <!-- 文件选择 -->
+  <view class="card">
+    <view class="section-title">选择 PDF 文件</view>
+
+    <view wx:if="{{ !selected }}" class="upload-area" bindtap="onChooseFile">
+      <view class="upload-icon-bg">
+        <text class="upload-icon">📄</text>
+      </view>
+      <text class="upload-text">点击选择 PDF 文件</text>
+      <text class="upload-hint">从微信聊天中选择文件，最大 50MB</text>
+    </view>
+
+    <view wx:else class="file-info">
+      <view class="file-row">
+        <view class="file-icon-wrapper">
+          <text class="file-icon">📄</text>
+        </view>
+        <view class="file-detail">
+          <text class="file-name">{{ fileName }}</text>
+          <text class="file-size">{{ fileSize }}</text>
+        </view>
+        <view class="file-clear" bindtap="onClearFile">
+          <text>✕</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 说明 -->
+  <view class="card info-card">
+    <view class="section-title">处理说明</view>
+    <view class="info-item">
+      <text class="info-dot">•</text>
+      <text class="info-text">自动检测并移除重复出现的文本水印</text>
+    </view>
+    <view class="info-item">
+      <text class="info-dot">•</text>
+      <text class="info-text">支持移除 "草稿"、"样例"、"水印" 等常见关键词</text>
+    </view>
+    <view class="info-item">
+      <text class="info-dot">•</text>
+      <text class="info-text">处理结果会保持原有内容和排版</text>
+    </view>
+    <view class="info-item info-last warn">
+      <text class="info-dot">⚠️</text>
+      <text class="info-text">复杂水印（如嵌入背景图片）可能无法完全去除</text>
+    </view>
+  </view>
+
+  <!-- 转换 -->
+  <view class="card" wx:if="{{ selected }}">
+    <view class="section-title">开始处理</view>
+
+    <button
+      wx:if="{{ status === 'idle' || status === 'error' }}"
+      class="btn-primary btn-press"
+      bindtap="onStartConvert"
+    >
+      <text wx:if="{{ status === 'error' }}">⟳ 重新处理</text>
+      <text wx:else>🧹 移除水印</text>
+    </button>
+
+    <view wx:elif="{{ status === 'uploading' || status === 'converting' }}" class="loading-area">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">{{ status === 'uploading' ? '📤 上传中...' : '🧹 正在移除水印...' }}</text>
+      <text class="loading-hint">PDF 页数越多处理时间越长</text>
+    </view>
+
+    <view wx:if="{{ status === 'error' }}" class="error-area">
+      <text class="error-icon">⚠️</text>
+      <text class="error-text">{{ errorMsg }}</text>
+      <button class="btn-retry btn-press" bindtap="onRetry">重试</button>
+    </view>
+  </view>
+
+  <!-- 使用提示 -->
+  <view class="card tips">
+    <view class="section-title">注意事项</view>
+    <view class="tip-item">· 处理后的文件临时保存 30 分钟，请及时下载</view>
+    <view class="tip-item">· 服务器不会保留您的任何文件</view>
+    <view class="tip-item">· 对于扫描件中的水印，目前支持有限</view>
+  </view>
+</view>

@@ -1,0 +1,85 @@
+<!-- pages/result/result.wxml -->
+<view class="container {{themeClass}}">
+  <!-- 转换中... -->
+  <view wx:if="{{ status === 'converting' }}" class="center-status">
+    <view class="spinner"></view>
+    <text class="status-text">正在下载转换后的文件...</text>
+    <text class="status-hint">文件越大下载越慢，请耐心等待</text>
+  </view>
+
+  <!-- 转换成功 -->
+  <view wx:elif="{{ status === 'ready' }}" class="success-area">
+    <!-- 彩带容器 -->
+    <view class="confetti-container">
+      <view class="confetti confetti-1"></view>
+      <view class="confetti confetti-2"></view>
+      <view class="confetti confetti-3"></view>
+      <view class="confetti confetti-4"></view>
+      <view class="confetti confetti-5"></view>
+      <view class="confetti confetti-6"></view>
+      <view class="confetti confetti-7"></view>
+      <view class="confetti confetti-8"></view>
+      <view class="confetti confetti-9"></view>
+      <view class="confetti confetti-10"></view>
+    </view>
+
+    <!-- 成功动画圆圈 -->
+    <view class="success-circle animate-success-circle">
+      <view class="success-check-bg">
+        <text class="success-check">✓</text>
+      </view>
+      <view class="ripple-1"></view>
+      <view class="ripple-2"></view>
+    </view>
+
+    <text class="success-title animate-success-title">转换完成</text>
+
+    <!-- 文件信息卡片 -->
+    <view class="card result-card animate-result-card">
+      <view class="result-row">
+        <text class="result-label">文件名</text>
+        <text class="result-value">{{ filename }}</text>
+      </view>
+      <view class="result-divider"></view>
+      <view class="result-row">
+        <text class="result-label">大小</text>
+        <text class="result-value">{{ sizeDisplay }}</text>
+      </view>
+      <view class="result-divider"></view>
+      <view class="result-row">
+        <text class="result-label">状态</text>
+        <text class="result-value result-status">✓ 已下载到本地</text>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-group animate-buttons">
+      <button class="btn-action btn-open btn-press" bindtap="onOpenFile">
+        <text>👁️ 打开文件</text>
+      </button>
+      <button class="btn-action btn-save btn-press" bindtap="onSaveFile">
+        <text>💾 保存到手机</text>
+      </button>
+    </view>
+
+    <!-- 其他操作 -->
+    <view class="secondary-actions animate-secondary">
+      <text class="link-text" bindtap="onConvertAgain">🔄 重新转换</text>
+      <text class="link-divider">|</text>
+      <text class="link-text" bindtap="onGoHome">🏠 返回首页</text>
+    </view>
+  </view>
+
+  <!-- 转换失败 -->
+  <view wx:elif="{{ status === 'error' }}" class="center-status">
+    <view class="error-icon-circle">
+      <text class="error-icon-large">✕</text>
+    </view>
+    <text class="status-text error-color">转换失败</text>
+    <text class="status-hint">{{ errorMsg }}</text>
+    <view class="error-actions">
+      <button class="btn-primary btn-press" bindtap="startDownload">重试下载</button>
+      <text class="link-text" bindtap="onConvertAgain" style="margin-top: 20px;">⟳ 返回重新转换</text>
+    </view>
+  </view>
+</view>

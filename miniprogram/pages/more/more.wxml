@@ -1,0 +1,77 @@
+<!-- pages/more/more.wxml -->
+<view class="container {{themeClass}}">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <view class="page-icon-bg">
+      <text class="page-icon">⚙️</text>
+    </view>
+    <text class="page-title">更多选项</text>
+    <text class="page-desc">设置与工具</text>
+  </view>
+
+  <!-- 主题切换 -->
+  <view class="card card-list-1">
+    <view class="section-title">外观设置</view>
+    <view class="menu-item" bindtap="onToggleTheme">
+      <view class="menu-left">
+        <text class="menu-icon">{{ theme === 'blue' ? '🌙' : '☀️' }}</text>
+        <view class="menu-info">
+          <text class="menu-title">深色模式</text>
+          <text class="menu-desc">{{ theme === 'blue' ? '当前：高级蓝' : '当前：高级黑' }}</text>
+        </view>
+      </view>
+      <view class="menu-switch">
+        <view class="switch-track {{ theme === 'dark' ? 'switch-on' : '' }}">
+          <view class="switch-thumb"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 其他选项 -->
+  <view class="card card-list-2">
+    <view class="section-title">其他</view>
+
+    <view class="menu-item" bindtap="onClearCache">
+      <view class="menu-left">
+        <text class="menu-icon">🗑️</text>
+        <view class="menu-info">
+          <text class="menu-title">清除本地缓存</text>
+          <text class="menu-desc">清除临时文件和缓存数据</text>
+        </view>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+
+    <view class="menu-divider"></view>
+
+    <view class="menu-item" bindtap="onShare">
+      <view class="menu-left">
+        <text class="menu-icon">📤</text>
+        <view class="menu-info">
+          <text class="menu-title">分享给好友</text>
+          <text class="menu-desc">推荐给朋友使用</text>
+        </view>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+
+    <view class="menu-divider"></view>
+
+    <view class="menu-item" bindtap="onContact">
+      <view class="menu-left">
+        <text class="menu-icon">✉️</text>
+        <view class="menu-info">
+          <text class="menu-title">联系开发者</text>
+          <text class="menu-desc">微信号：19571845180</text>
+        </view>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 底部版本号 -->
+  <view class="footer">
+    <text class="footer-text">版本 1.0.0</text>
+  </view>
+</view>

@@ -1,0 +1,11 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+httpx==0.28.1
+pdf2docx==0.5.8
+aiofiles==24.1.0
+img2pdf==0.5.1
+Pillow==11.0.0
+qrcode[pil]==7.4.2
+python-barcode==0.15.1
+PyMuPDF==1.24.9

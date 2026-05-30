@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  # ── Gotenberg：文档转 PDF 引擎（Word→PDF） ──
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: wechat-converter-gotenberg
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    # 可根据需要调大并发
+    # environment:
+    #   - DISABLE_GOOGLE_CHROME=1    # 仅用 LibreOffice
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - converter-net
+
+  # ── 后端 API 服务（PDF→Word + 调度） ──
+  backend:
+    build: .
+    container_name: wechat-converter-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - GOTENBERG_URL=http://gotenberg:3000
+      - UPLOAD_DIR=/tmp/uploads
+      - OUTPUT_DIR=/tmp/output
+    volumes:
+      - uploads:/tmp/uploads
+      - output:/tmp/output
+    depends_on:
+      gotenberg:
+        condition: service_healthy
+    networks:
+      - converter-net
+
+networks:
+  converter-net:
+    driver: bridge
+
+volumes:
+  uploads:
+  output:

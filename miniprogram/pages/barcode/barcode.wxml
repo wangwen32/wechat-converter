@@ -1,0 +1,78 @@
+<!-- pages/barcode/barcode.wxml -->
+<view class="container {{themeClass}}">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <view class="page-icon-bg">
+      <text class="page-icon">〰️</text>
+    </view>
+    <text class="page-title">条形码生成</text>
+    <text class="page-desc">输入数据，选择类型，快速生成条形码</text>
+  </view>
+
+  <!-- 输入区域 -->
+  <view class="card">
+    <view class="section-title">输入数据</view>
+
+    <input
+      class="text-input"
+      placeholder="输入要编码的文本或数字..."
+      placeholder-class="input-placeholder"
+      value="{{ inputData }}"
+      bindinput="onInputChange"
+      maxlength="200"
+      disabled="{{ generating }}"
+    />
+
+    <view class="section-title" style="margin-top: 16px;">条形码类型</view>
+    <picker
+      mode="selector"
+      range="{{ typeList }}"
+      value="{{ typeIndex }}"
+      bindchange="onTypeChange"
+      disabled="{{ generating }}"
+    >
+      <view class="picker-box">
+        <text class="picker-label">{{ typeList[typeIndex] || '选择类型' }}</text>
+        <text class="picker-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 生成按钮 -->
+  <view class="card">
+    <button
+      class="btn-primary btn-press"
+      bindtap="onGenerate"
+      disabled="{{ !canGenerate || generating }}"
+    >
+      <text wx:if="{{ generating }}">⏳ 生成中...</text>
+      <text wx:else>🚀 生成条形码</text>
+    </button>
+  </view>
+
+  <!-- 结果展示 -->
+  <view wx:if="{{ resultUrl }}" class="card result-card">
+    <view class="section-title">生成结果</view>
+    <view class="barcode-display">
+      <image class="barcode-img" src="{{ resultUrl }}" mode="widthFix"></image>
+    </view>
+    <view class="result-info">
+      <text class="result-info-label">类型: {{ typeList[typeIndex] }}</text>
+      <text class="result-info-label">数据: {{ inputData }}</text>
+    </view>
+    <view class="action-row">
+      <button class="btn-action btn-save" bindtap="onSaveImage" size="mini">
+        💾 保存到相册
+      </button>
+    </view>
+  </view>
+
+  <!-- 使用提示 -->
+  <view class="card tips">
+    <view class="section-title">支持类型</view>
+    <view class="tip-item">· <text class="tip-bold">Code128</text> — 字母数字混合（通用）</view>
+    <view class="tip-item">· <text class="tip-bold">Code39</text> — 字母数字（工业标准）</view>
+    <view class="tip-item">· <text class="tip-bold">EAN-13 / EAN-8</text> — 商品条形码</view>
+    <view class="tip-item">· <text class="tip-bold">UPC-A</text> — 北美商品码</view>
+  </view>
+</view>

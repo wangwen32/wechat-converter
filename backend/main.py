@@ -1,0 +1,320 @@
+"""
+微信文档转换助手 — FastAPI 后端
+
+提供文档转换与生成功能：
+  POST /api/convert/word2pdf   — 上传 .docx 返回 .pdf 下载链接
+  POST /api/convert/pdf2word   — 上传 .pdf 返回 .docx 下载链接
+  POST /api/convert/img2pdf    — 上传图片返回 .pdf 下载链接
+  POST /api/convert/pdf/remove-watermark — 上传 PDF 移除水印
+  POST /api/generate/barcode   — 生成条形码图片
+  POST /api/generate/qrcode    — 生成二维码图片
+  GET  /api/convert/status     — 健康检查
+"""
+
+import os
+import time
+import uuid
+import asyncio
+import logging
+from contextlib import asynccontextmanager
+from typing import Optional
+
+from fastapi import FastAPI, UploadFile, File, Form, Body, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+
+from config import (
+    UPLOAD_DIR, OUTPUT_DIR,
+    ALLOWED_EXTENSIONS, BARCODE_TYPES,
+    FILE_EXPIRE_SECONDS, CLEANUP_INTERVAL_SECONDS,
+)
+from services.gotenberg_service import word_to_pdf
+from services.pdf2docx_service import pdf_to_word
+from services.img2pdf_service import images_to_pdf
+from services.barcode_service import generate_barcode
+from services.qrcode_service import generate_qrcode
+from services.watermark_service import remove_watermark
+
+# ── 日志 ──
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
+
+# ── 生命周期 ──
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    cleanup_task = asyncio.create_task(_cleanup_loop())
+    yield
+    cleanup_task.cancel()
+    try:
+        await cleanup_task
+    except asyncio.CancelledError:
+        pass
+
+
+app = FastAPI(
+    title="微信文档转换助手",
+    description="PDF ↔ Word 双向转换 API",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ── 辅助函数 ──
+
+
+def _check_extension(filename: str, allowed: list[str]) -> bool:
+    """检查文件扩展名是否在允许列表中"""
+    ext = os.path.splitext(filename)[1].lower()
+    return ext in allowed
+
+
+async def _cleanup_loop():
+    """后台线程：定期清理过期临时文件"""
+    while True:
+        await asyncio.sleep(CLEANUP_INTERVAL_SECONDS)
+        now = time.time()
+        for directory in (UPLOAD_DIR, OUTPUT_DIR):
+            if not os.path.isdir(directory):
+                continue
+            for fname in os.listdir(directory):
+                fpath = os.path.join(directory, fname)
+                try:
+                    if os.path.isfile(fpath) and now - os.path.getmtime(fpath) > FILE_EXPIRE_SECONDS:
+                        os.remove(fpath)
+                        logger.info("清理过期文件: %s", fpath)
+                except Exception as e:
+                    logger.warning("清理文件失败 %s: %s", fpath, e)
+
+
+# ── 路由 ──
+
+
+@app.get("/api/convert/status")
+async def status():
+    """健康检查"""
+    return {"status": "ok", "service": "微信文档转换助手"}
+
+
+@app.post("/api/convert/word2pdf")
+async def convert_word_to_pdf(file: UploadFile = File(...)):
+    """Word → PDF 转换"""
+    if not file.filename:
+        raise HTTPException(400, detail="未选择文件")
+
+    if not _check_extension(file.filename, ALLOWED_EXTENSIONS["word2pdf"]):
+        raise HTTPException(400, detail=f"不支持的文件格式，仅支持: {', '.join(ALLOWED_EXTENSIONS['word2pdf'])}")
+
+    return await _handle_conversion(file, "word2pdf", word_to_pdf, ".pdf")
+
+
+@app.post("/api/convert/pdf2word")
+async def convert_pdf_to_word(file: UploadFile = File(...)):
+    """PDF → Word 转换"""
+    if not file.filename:
+        raise HTTPException(400, detail="未选择文件")
+
+    if not _check_extension(file.filename, ALLOWED_EXTENSIONS["pdf2word"]):
+        raise HTTPException(400, detail=f"不支持的文件格式，仅支持: {', '.join(ALLOWED_EXTENSIONS['pdf2word'])}")
+
+    return await _handle_conversion(file, "pdf2word", pdf_to_word, ".docx")
+
+
+@app.post("/api/convert/img2pdf")
+async def convert_img_to_pdf(file: UploadFile = File(...)):
+    """图片 → PDF 转换"""
+    if not file.filename:
+        raise HTTPException(400, detail="未选择文件")
+
+    if not _check_extension(file.filename, ALLOWED_EXTENSIONS["img2pdf"]):
+        raise HTTPException(400, detail=f"不支持的文件格式，仅支持: {', '.join(ALLOWED_EXTENSIONS['img2pdf'])}")
+
+    return await _handle_conversion(file, "img2pdf", images_to_pdf, ".pdf")
+
+
+@app.post("/api/convert/remove-watermark")
+async def convert_remove_watermark(file: UploadFile = File(...)):
+    """PDF 水印移除"""
+    if not file.filename:
+        raise HTTPException(400, detail="未选择文件")
+
+    if not _check_extension(file.filename, ALLOWED_EXTENSIONS["remove_watermark"]):
+        raise HTTPException(400, detail=f"不支持的文件格式，仅支持: {', '.join(ALLOWED_EXTENSIONS['remove_watermark'])}")
+
+    return await _handle_conversion(file, "remove_watermark", remove_watermark, "_cleaned.pdf")
+
+
+@app.post("/api/generate/barcode")
+async def generate_barcode_api(
+    body: dict = Body(...),
+):
+    """生成条形码图片"""
+    data = body.get("data", "")
+    barcode_type = body.get("barcode_type", "code128")
+
+    if not data or not data.strip():
+        raise HTTPException(400, detail="请输入要编码的数据")
+
+    if barcode_type not in BARCODE_TYPES:
+        raise HTTPException(400, detail=f"不支持的条形码类型: {barcode_type}")
+
+    try:
+        result = await generate_barcode(data, barcode_type)
+
+        # 保存到输出目录
+        task_id = uuid.uuid4().hex[:12]
+        filename = f"barcode_{task_id}.png"
+        output_path = os.path.join(OUTPUT_DIR, filename)
+
+        with open(output_path, "wb") as f:
+            f.write(result["image_data"])
+
+        file_size = os.path.getsize(output_path)
+
+        return {
+            "code": 0,
+            "message": "条形码生成成功",
+            "data": {
+                "download_url": f"/api/download/{filename}",
+                "filename": f"条形码_{barcode_type}.png",
+                "size": file_size,
+                "barcode_type": barcode_type,
+            },
+        }
+    except ValueError as e:
+        raise HTTPException(400, detail=str(e))
+    except Exception as e:
+        logger.error("条形码生成失败: %s", str(e))
+        raise HTTPException(500, detail=f"条形码生成失败: {str(e)}")
+
+
+@app.post("/api/generate/qrcode")
+async def generate_qrcode_api(
+    body: dict = Body(...),
+):
+    """生成二维码图片"""
+    data = body.get("data", "")
+
+    if not data or not data.strip():
+        raise HTTPException(400, detail="请输入要编码的数据")
+
+    try:
+        result = await generate_qrcode(data)
+
+        # 保存到输出目录
+        task_id = uuid.uuid4().hex[:12]
+        filename = f"qrcode_{task_id}.png"
+        output_path = os.path.join(OUTPUT_DIR, filename)
+
+        with open(output_path, "wb") as f:
+            f.write(result["image_data"])
+
+        file_size = os.path.getsize(output_path)
+
+        return {
+            "code": 0,
+            "message": "二维码生成成功",
+            "data": {
+                "download_url": f"/api/download/{filename}",
+                "filename": "二维码.png",
+                "size": file_size,
+            },
+        }
+    except ValueError as e:
+        raise HTTPException(400, detail=str(e))
+    except Exception as e:
+        logger.error("二维码生成失败: %s", str(e))
+        raise HTTPException(500, detail=f"二维码生成失败: {str(e)}")
+
+
+async def _handle_conversion(file: UploadFile, convert_type: str, convert_fn, output_ext: str):
+    """
+    通用转换处理流程：
+      1. 保存上传文件
+      2. 调用转换函数
+      3. 返回下载信息
+    """
+    task_id = uuid.uuid4().hex[:12]
+    input_ext = os.path.splitext(file.filename)[1]
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
+    output_filename = f"{task_id}{output_ext}"
+    output_path = os.path.join(OUTPUT_DIR, output_filename)
+
+    try:
+        # 保存上传文件
+        content = await file.read()
+        if not content:
+            raise HTTPException(400, detail="上传文件为空")
+
+        with open(input_path, "wb") as f:
+            f.write(content)
+
+        logger.info("开始转换 [%s] %s (%d bytes)", convert_type, file.filename, len(content))
+
+        # 执行转换
+        await convert_fn(input_path, output_path)
+
+        if not os.path.isfile(output_path):
+            raise RuntimeError("转换后未生成输出文件")
+
+        file_size = os.path.getsize(output_path)
+        logger.info("转换完成 [%s] %s → %s (%d bytes)", convert_type, file.filename, output_filename, file_size)
+
+        return {
+            "code": 0,
+            "message": "转换成功",
+            "data": {
+                "download_url": f"/api/download/{output_filename}",
+                "filename": os.path.splitext(file.filename)[0] + output_ext,
+                "size": file_size,
+            },
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("转换失败 [%s] %s: %s", convert_type, file.filename, str(e))
+        raise HTTPException(500, detail=f"转换失败: {str(e)}")
+    finally:
+        # 清理上传的临时文件
+        try:
+            if os.path.isfile(input_path):
+                os.remove(input_path)
+        except Exception as e:
+            logger.warning("清理上传文件失败: %s", e)
+
+
+@app.get("/api/download/{filename:path}")
+async def download_file(filename: str):
+    """提供转换后文件的下载"""
+    filepath = os.path.join(OUTPUT_DIR, filename)
+    if not os.path.isfile(filepath):
+        raise HTTPException(404, detail="文件不存在或已过期")
+
+    # 根据扩展名设置 content-type
+    ext = os.path.splitext(filename)[1].lower()
+    media_type = {
+        ".pdf": "application/pdf",
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+    }.get(ext, "application/octet-stream")
+
+    return FileResponse(filepath, media_type=media_type, filename=filename)
+
+
+# ── 启动 ──
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

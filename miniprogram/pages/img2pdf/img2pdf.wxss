@@ -1,0 +1,8 @@
+/* ══════════════════════════════════════════
+   图片→PDF 页
+   ══════════════════════════════════════════ */
+
+@import '../convert/convert.wxss';
+
+.preview-area { display: flex; flex-direction: column; align-items: center; }
+.preview-img { width: 100%; max-height: 240px; border-radius: 12px; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.06); }

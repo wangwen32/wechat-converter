@@ -1,0 +1,37 @@
+/* ══════════════════════════════════════════
+   更多选项页
+   ══════════════════════════════════════════ */
+
+.container { display: flex; flex-direction: column; min-height: 100vh; }
+.page-header { display: flex; flex-direction: column; align-items: center; padding: 28px 0 20px; }
+.page-header { animation: fadeInScale 0.5s ease-out both; }
+.card-list-1 { animation: fadeInUp 0.5s ease-out 0.15s both; }
+.card-list-2 { animation: fadeInUp 0.5s ease-out 0.25s both; }
+
+.page-icon-bg {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: linear-gradient(135deg, #2B5CE8, #4A7CF7);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px; box-shadow: 0 6px 20px rgba(43, 92, 232, 0.3);
+}
+.page-icon { font-size: 30px; }
+.page-title { font-size: 22px; font-weight: 700; color: #1A2332; margin-bottom: 4px; }
+.page-desc { font-size: 13px; color: rgba(0, 0, 0, 0.35); }
+
+/* ── 菜单项 ── */
+.menu-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; transition: all 0.15s ease; }
+.menu-item:active { opacity: 0.6; transform: scale(0.98); }
+.menu-left { display: flex; align-items: center; gap: 14px; flex: 1; }
+.menu-icon {
+  font-size: 24px; width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.menu-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.menu-title { font-size: 15px; font-weight: 500; color: #1A2332; }
+.menu-desc { font-size: 12px; color: rgba(0, 0, 0, 0.35); }
+.menu-arrow { font-size: 20px; color: rgba(0, 0, 0, 0.15); flex-shrink: 0; }
+.menu-divider { height: 1px; background: rgba(0, 0, 0, 0.04); margin: 0; }
+
+/* ── 底部 ── */
+.footer { display: flex; justify-content: center; padding: 32px 0; }
+.footer-text { font-size: 12px; color: rgba(0, 0, 0, 0.2); }
