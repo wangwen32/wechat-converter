@@ -83,11 +83,8 @@ function uploadWithApp(convertType, filePath, fileName, onProgress) {
   });
 }
 
-// 自动选择上传方式
+// 统一通过 app.uploadFileToCloud 上传（自动处理 X-WX-SERVICE 头）
 function uploadAndConvertAuto(convertType, filePath, fileName, onProgress) {
-  if (isDebug()) {
-    return uploadAndConvert(convertType, filePath, fileName, onProgress);
-  }
   return uploadWithApp(convertType, filePath, fileName, onProgress);
 }
 
