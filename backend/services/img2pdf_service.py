@@ -63,7 +63,7 @@ def _do_convert(input_path: str, output_path: str):
             os.remove(rgb_path)
             img_data = rgb_data
 
-    # 使用 img2pdf 转换
-    pdf_bytes = img2pdf.convert(img_data)
+    # 使用 img2pdf 转换（忽略无效的 EXIF 旋转信息）
+    pdf_bytes = img2pdf.convert(img_data, rotation=img2pdf.Rotation.ifvalid)
     with open(output_path, "wb") as f:
         f.write(pdf_bytes)
