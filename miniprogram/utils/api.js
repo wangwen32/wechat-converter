@@ -1,55 +1,31 @@
 /**
- * API 工具模块 — 云托管域名直连模式
+ * API 工具模块 — 基于 getApp().callApi / uploadFileToCloud
  */
 const app = getApp();
-const CLOUD_HOST = 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com';
 
 function getBaseUrl() {
-  return app.globalData.baseUrl;
+  return app.globalData.isDebug
+    ? 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com'
+    : '';
 }
 
 /**
- * 通用请求（云托管用域名，本地用局域网）
- */
-function request(path, method, data, options = {}) {
-  return new Promise((resolve, reject) => {
-    const baseUrl = app.globalData.useCloud ? CLOUD_HOST : getBaseUrl();
-    const url = `${baseUrl}${path}`;
-    wx.request({
-      url, method,
-      header: { 'content-type': 'application/json', ...(options.header || {}) },
-      data,
-      success(res) {
-        if (res.statusCode !== 200) {
-          const detail = (res.data && (res.data.detail || res.data.message)) || '';
-          reject(new Error(detail || `服务器错误 (${res.statusCode})`));
-          return;
-        }
-        resolve(res.data);
-      },
-      fail(err) {
-        reject(new Error(err.errMsg || '网络请求失败'));
-      },
-    });
-  });
-}
-
-/**
- * 上传文件并转换
+ * 上传文件并转换（自动适配调试/上线模式）
  */
 function uploadAndConvert(convertType, filePath, fileName, onProgress) {
   return new Promise((resolve, reject) => {
-    const baseUrl = app.globalData.useCloud ? CLOUD_HOST : getBaseUrl();
-    const url = `${baseUrl}/api/convert/${convertType}`;
-    const uploadTask = wx.uploadFile({
-      url, filePath, name: 'file', formData: {},
+    wx.uploadFile({
+      url: getBaseUrl() + `/api/convert/${convertType}`,
+      filePath,
+      name: 'file',
+      formData: {},
       success(res) {
         if (res.statusCode !== 200) {
           reject(new Error(`服务器错误 (${res.statusCode})`));
           return;
         }
         try {
-          const body = JSON.parse(res.data);
+          const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
           if (body.code !== 0) {
             reject(new Error(body.message || '转换失败'));
             return;
@@ -69,9 +45,44 @@ function uploadAndConvert(convertType, filePath, fileName, onProgress) {
       },
     });
     if (onProgress) {
-      uploadTask.onProgressUpdate((res) => onProgress(res.progress));
+      const task = wx.getFileSystemManager ? null : null;
     }
   });
+}
+
+// 重写：使用 app.uploadFileToCloud
+function uploadWithApp(convertType, filePath, fileName, onProgress) {
+  return new Promise((resolve, reject) => {
+    app.uploadFileToCloud({
+      url: `/api/convert/${convertType}`,
+      filePath,
+      name: 'file',
+      success(res) {
+        const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+        if (data.code !== 0) {
+          reject(new Error(data.message || '转换失败'));
+          return;
+        }
+        resolve({
+          downloadUrl: data.data.download_url,
+          filename: data.data.filename,
+          size: data.data.size,
+          downloadKey: data.data.download_key,
+        });
+      },
+      fail(err) {
+        reject(new Error(err.errMsg || '上传失败'));
+      },
+    });
+  });
+}
+
+// 如果 isDebug=false，用 uploadWithApp；否则用原来直接调用的方式
+function uploadAndConvertAuto(convertType, filePath, fileName, onProgress) {
+  if (app.globalData.isDebug) {
+    return uploadAndConvert(convertType, filePath, fileName, onProgress);
+  }
+  return uploadWithApp(convertType, filePath, fileName, onProgress);
 }
 
 /**
@@ -79,10 +90,11 @@ function uploadAndConvert(convertType, filePath, fileName, onProgress) {
  */
 function downloadFile(url, filename, downloadKey) {
   return new Promise((resolve, reject) => {
-    const baseUrl = app.globalData.useCloud ? CLOUD_HOST : getBaseUrl();
+    const baseUrl = getBaseUrl();
     const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    const downloadUrl = fullUrl;
     wx.downloadFile({
-      url: fullUrl,
+      url: downloadUrl,
       success(res) {
         if (res.statusCode === 200) {
           resolve(res.tempFilePath);
@@ -117,26 +129,50 @@ function openFile(filePath, ext) {
  * 生成条形码
  */
 function generateBarcode(data, barcodeType = 'code128') {
-  return request('/api/generate/barcode', 'POST', { data, barcode_type: barcodeType })
-    .then(body => ({
-      downloadUrl: body.data.download_url,
-      filename: body.data.filename,
-      size: body.data.size,
-      downloadKey: body.data.download_key,
-    }));
+  return new Promise((resolve, reject) => {
+    app.callApi({
+      url: '/api/generate/barcode',
+      method: 'POST',
+      data: { data, barcode_type: barcodeType },
+      success(res) {
+        const body = res.data;
+        resolve({
+          downloadUrl: body.data.download_url,
+          filename: body.data.filename,
+          size: body.data.size,
+          downloadKey: body.data.download_key,
+        });
+      },
+      fail(err) {
+        reject(new Error(err.errMsg || '生成失败'));
+      },
+    });
+  });
 }
 
 /**
  * 生成二维码
  */
 function generateQRCode(data) {
-  return request('/api/generate/qrcode', 'POST', { data })
-    .then(body => ({
-      downloadUrl: body.data.download_url,
-      filename: body.data.filename,
-      size: body.data.size,
-      downloadKey: body.data.download_key,
-    }));
+  return new Promise((resolve, reject) => {
+    app.callApi({
+      url: '/api/generate/qrcode',
+      method: 'POST',
+      data: { data },
+      success(res) {
+        const body = res.data;
+        resolve({
+          downloadUrl: body.data.download_url,
+          filename: body.data.filename,
+          size: body.data.size,
+          downloadKey: body.data.download_key,
+        });
+      },
+      fail(err) {
+        reject(new Error(err.errMsg || '生成失败'));
+      },
+    });
+  });
 }
 
 /**
@@ -161,17 +197,20 @@ function saveImageToAlbum(imageUrl) {
                 success(m) { if (m.confirm) wx.openSetting(); },
               });
             }
-            reject(new Error('保存失败: ' + (err.errMsg || '未知错误')));
+            reject(new Error('保存失败'));
           },
         });
       },
       fail(err) {
-        reject(new Error('下载失败: ' + (err.errMsg || '')));
+        reject(new Error('下载失败'));
       },
     });
   });
 }
 
+/**
+ * 格式化文件大小
+ */
 function formatSize(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -179,6 +218,12 @@ function formatSize(bytes) {
 }
 
 module.exports = {
-  getBaseUrl, uploadAndConvert, downloadFile, openFile, formatSize,
-  generateBarcode, generateQRCode, saveImageToAlbum,
+  getBaseUrl,
+  uploadAndConvert: uploadAndConvertAuto,
+  downloadFile,
+  openFile,
+  formatSize,
+  generateBarcode,
+  generateQRCode,
+  saveImageToAlbum,
 };
