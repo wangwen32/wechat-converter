@@ -51,7 +51,6 @@ App({
         method,
         data,
         header: {
-          'X-WX-SERVICE': this.globalData.cloudService,
           'content-type': 'application/json',
           ...header,
         },
@@ -125,10 +124,7 @@ App({
       filePath,
       name,
       formData,
-      header: {
-        'X-WX-SERVICE': this.globalData.cloudService,
-        ...header,
-      },
+      header,
       success(res) {
         if (res.statusCode !== 200) {
           fail && fail({ errMsg: `服务器错误 (${res.statusCode})` });
