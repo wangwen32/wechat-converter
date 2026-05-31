@@ -122,7 +122,7 @@ Page({
 
       // 跳转到结果页
       wx.redirectTo({
-        url: `/pages/result/result?downloadUrl=${encodeURIComponent(result.downloadUrl)}&filename=${encodeURIComponent(result.filename)}&size=${result.size}&convertType=${this.data.convertType}&downloadKey=${encodeURIComponent(result.downloadKey || '')}`,
+        url: `/pages/result/result?downloadUrl=${encodeURIComponent(result.downloadUrl)}&filename=${encodeURIComponent(result.filename)}&size=${result.size}&convertType=${this.data.convertType}&downloadKey=${encodeURIComponent(result.downloadKey || '')}&localPath=${encodeURIComponent(result.localPath || '')}`,
       });
     } catch (err) {
       this.setData({

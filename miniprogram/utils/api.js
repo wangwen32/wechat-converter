@@ -69,11 +69,27 @@ function uploadWithApp(convertType, filePath, fileName, onProgress) {
           reject(new Error(data.message || '转换失败'));
           return;
         }
+        // 如果返回了 file_base64，直接保存到本地
+        let localPath = '';
+        if (data.data.file_base64) {
+          try {
+            const fs = wx.getFileSystemManager();
+            const tempDir = `${wx.env.USER_DATA_PATH}/downloads`;
+            try { fs.mkdirSync(tempDir); } catch (e) {}
+            const safeName = (data.data.download_key || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+            localPath = `${tempDir}/${safeName}`;
+            const arrayBuffer = wx.base64ToArrayBuffer(data.data.file_base64);
+            fs.writeFileSync(localPath, arrayBuffer);
+          } catch (e) {
+            console.warn('保存文件失败', e);
+          }
+        }
         resolve({
           downloadUrl: data.data.download_url,
           filename: data.data.filename,
           size: data.data.size,
           downloadKey: data.data.download_key,
+          localPath: localPath, // 本地文件路径（免下载）
         });
       },
       fail(err) {

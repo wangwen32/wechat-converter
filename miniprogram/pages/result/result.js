@@ -19,6 +19,7 @@ Page({
     downloadProgress: 0,
     errorMsg: '',
     downloadKey: '',
+    localPath: '',
 
     // 主题
     theme: 'blue',
@@ -36,10 +37,13 @@ Page({
       sizeDisplay: api.formatSize(parseInt(options.size || '0')),
       convertType: options.convertType || '',
       downloadKey: decodeURIComponent(options.downloadKey || ''),
+      localPath: decodeURIComponent(options.localPath || ''),
     });
 
-    // 自动开始下载
-    if (this.data.downloadUrl) {
+    // 优先使用上传时已保存的本地文件
+    if (this.data.localPath) {
+      this.setData({ status: 'ready', tempFilePath: this.data.localPath });
+    } else if (this.data.downloadUrl) {
       this.startDownload();
     } else {
       this.setData({ status: 'error', errorMsg: '下载地址无效' });

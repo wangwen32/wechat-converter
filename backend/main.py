@@ -203,6 +203,10 @@ async def convert_upload_binary(endpoint: str, request: Request):
         file_size = os.path.getsize(output_path)
         logger.info("转换完成 [%s] %s (%d bytes)", endpoint, output_filename, file_size)
 
+        # 读取文件内容，返回 base64（避免云托管多实例文件不同步问题）
+        with open(output_path, "rb") as f:
+            file_base64 = base64.b64encode(f.read()).decode("utf-8")
+
         return {
             "code": 0,
             "message": "转换成功",
@@ -211,6 +215,7 @@ async def convert_upload_binary(endpoint: str, request: Request):
                 "filename": os.path.splitext(filename)[0] + (output_ext if output_ext.endswith('.pdf') else output_ext),
                 "size": file_size,
                 "download_key": output_filename,
+                "file_base64": file_base64,
             },
         }
     except HTTPException:
