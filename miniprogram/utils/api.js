@@ -93,25 +93,56 @@ function uploadAndConvertAuto(convertType, filePath, fileName, onProgress) {
 }
 
 /**
- * 下载文件
+ * 下载文件（通过 JSON 接口获取 base64，避免云托管实例文件不同步问题）
  */
 function downloadFile(url, filename, downloadKey) {
   return new Promise((resolve, reject) => {
-    // 下载必须用完整 URL，始终使用 CLOUD_HOST
-    const fullUrl = url.startsWith('http') ? url : `${CLOUD_HOST}${url}`;
-    wx.downloadFile({
-      url: fullUrl,
-      success(res) {
-        if (res.statusCode === 200) {
-          resolve(res.tempFilePath);
-        } else {
-          reject(new Error(`下载失败 (${res.statusCode})`));
-        }
-      },
-      fail(err) {
-        reject(new Error(err.errMsg || '下载失败'));
-      },
-    });
+    // 先通过 callApi 获取文件 base64
+    if (downloadKey) {
+      getApp().callApi({
+        url: '/api/download/json',
+        method: 'POST',
+        data: { download_key: downloadKey },
+        success(res) {
+          try {
+            const d = res.data;
+            if (d.code !== 0) {
+              reject(new Error(d.message || '下载失败'));
+              return;
+            }
+            const fs = wx.getFileSystemManager();
+            const tempDir = `${wx.env.USER_DATA_PATH}/downloads`;
+            try { fs.mkdirSync(tempDir); } catch (e) {}
+            const safeName = (downloadKey || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+            const tempPath = `${tempDir}/${safeName}`;
+            const arrayBuffer = wx.base64ToArrayBuffer(d.data.file_base64);
+            fs.writeFileSync(tempPath, arrayBuffer);
+            resolve(tempPath);
+          } catch (e) {
+            reject(new Error('保存文件失败: ' + e.message));
+          }
+        },
+        fail(err) {
+          reject(new Error(err.errMsg || '下载失败'));
+        },
+      });
+    } else {
+      // 没有 downloadKey 时回退到直接下载
+      const fullUrl = url.startsWith('http') ? url : `${CLOUD_HOST}${url}`;
+      wx.downloadFile({
+        url: fullUrl,
+        success(res) {
+          if (res.statusCode === 200) {
+            resolve(res.tempFilePath);
+          } else {
+            reject(new Error(`下载失败 (${res.statusCode})`));
+          }
+        },
+        fail(err) {
+          reject(new Error(err.errMsg || '下载失败'));
+        },
+      });
+    }
   });
 }
 
