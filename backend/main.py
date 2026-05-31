@@ -14,6 +14,7 @@
 import os
 import time
 import uuid
+import base64
 import asyncio
 import logging
 from contextlib import asynccontextmanager
@@ -466,6 +467,10 @@ async def _handle_conversion(file: UploadFile, convert_type: str, convert_fn, ou
         file_size = os.path.getsize(output_path)
         logger.info("转换完成 [%s] %s → %s (%d bytes)", convert_type, file.filename, output_filename, file_size)
 
+        # 读取文件内容，返回 base64（避免云托管多实例文件不同步问题）
+        with open(output_path, "rb") as f:
+            file_base64 = base64.b64encode(f.read()).decode("utf-8")
+
         return {
             "code": 0,
             "message": "转换成功",
@@ -474,6 +479,7 @@ async def _handle_conversion(file: UploadFile, convert_type: str, convert_fn, ou
                 "filename": os.path.splitext(file.filename)[0] + output_ext,
                 "size": file_size,
                 "download_key": output_filename,
+                "file_base64": file_base64,
             },
         }
 
