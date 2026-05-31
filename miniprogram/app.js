@@ -51,6 +51,7 @@ App({
         method,
         data,
         header: {
+          'X-WX-SERVICE': this.globalData.cloudService,
           'content-type': 'application/json',
           ...header,
         },
