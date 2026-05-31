@@ -1,5 +1,5 @@
 // app.js
-const CLOUD_HOST = 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com';
+const CLOUD_HOST = 'https://convertmy.kaixin8.top';
 
 App({
   globalData: {
@@ -10,7 +10,7 @@ App({
     // ========== 调试开关 ==========
     // true = 走公网域名（本地调试用）
     // false = 走 callContainer 内网链路（上线用）
-    isDebug: true,
+    isDebug: false,
 
     // ========== 主题 ==========
     theme: 'blue',
