@@ -1,5 +1,5 @@
 // app.js
-const CLOUD_HOST = 'https://convertmy.kaixin8.top';
+const CLOUD_HOST = 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com';
 
 App({
   globalData: {
@@ -127,7 +127,13 @@ App({
       header,
       success(res) {
         if (res.statusCode !== 200) {
-          fail && fail({ errMsg: `服务器错误 (${res.statusCode})` });
+          // 尝试获取服务器返回的具体错误信息
+          let detail = '';
+          try {
+            const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+            detail = body.detail || body.message || '';
+          } catch (e) {}
+          fail && fail({ errMsg: detail || `服务器错误 (${res.statusCode})` });
           complete && complete();
           return;
         }
