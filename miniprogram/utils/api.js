@@ -1,7 +1,7 @@
 /**
  * API 工具模块 — 基于 getApp().callApi / uploadFileToCloud
  */
-const CLOUD_HOST = 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com';
+const CLOUD_HOST = 'https://convertmy.kaixin8.top';
 
 function isDebug() {
   try {
