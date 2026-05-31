@@ -56,10 +56,10 @@ function uploadAndConvert(convertType, filePath, fileName, onProgress) {
   });
 }
 
-// 重写：使用 app.uploadFileToCloud
+// 使用 app.uploadFileToCloud（含进度回调支持）
 function uploadWithApp(convertType, filePath, fileName, onProgress) {
   return new Promise((resolve, reject) => {
-    getApp().uploadFileToCloud({
+    const uploadTask = getApp().uploadFileToCloud({
       url: `/api/convert/${convertType}`,
       filePath,
       name: 'file',
@@ -80,6 +80,10 @@ function uploadWithApp(convertType, filePath, fileName, onProgress) {
         reject(new Error(err.errMsg || '上传失败'));
       },
     });
+    // 进度回调
+    if (onProgress && uploadTask && uploadTask.onProgressUpdate) {
+      uploadTask.onProgressUpdate((res) => onProgress(res.progress));
+    }
   });
 }
 

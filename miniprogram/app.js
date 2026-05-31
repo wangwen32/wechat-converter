@@ -120,7 +120,7 @@ App({
 
     const fullUrl = `${baseUrl}${path}`;
 
-    wx.uploadFile({
+    const uploadTask = wx.uploadFile({
       url: fullUrl,
       filePath,
       name,
@@ -147,6 +147,7 @@ App({
         complete && complete();
       },
     });
+    return uploadTask;
   },
 
   // =============================================
