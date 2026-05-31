@@ -116,9 +116,7 @@ App({
     }
 
     // 拼接完整 URL
-    const baseUrl = this.globalData.isDebug
-      ? CLOUD_HOST                               // 调试模式：公网域名
-      : CLOUD_HOST;                              // 上线模式：云托管域名（需配白名单）
+    const baseUrl = CLOUD_HOST;
 
     const fullUrl = `${baseUrl}${path}`;
 
@@ -127,7 +125,10 @@ App({
       filePath,
       name,
       formData,
-      header,
+      header: {
+        'X-WX-SERVICE': this.globalData.cloudService,
+        ...header,
+      },
       success(res) {
         if (res.statusCode !== 200) {
           fail && fail({ errMsg: `服务器错误 (${res.statusCode})` });

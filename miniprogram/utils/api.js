@@ -1,12 +1,18 @@
 /**
  * API 工具模块 — 基于 getApp().callApi / uploadFileToCloud
  */
-const app = getApp();
+const CLOUD_HOST = 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com';
+
+function isDebug() {
+  try {
+    return getApp().globalData.isDebug === true;
+  } catch (e) {
+    return true;
+  }
+}
 
 function getBaseUrl() {
-  return app.globalData.isDebug
-    ? 'https://converter-api-264078-8-1438485063.sh.run.tcloudbase.com'
-    : '';
+  return isDebug() ? CLOUD_HOST : '';
 }
 
 /**
@@ -53,7 +59,7 @@ function uploadAndConvert(convertType, filePath, fileName, onProgress) {
 // 重写：使用 app.uploadFileToCloud
 function uploadWithApp(convertType, filePath, fileName, onProgress) {
   return new Promise((resolve, reject) => {
-    app.uploadFileToCloud({
+    getApp().uploadFileToCloud({
       url: `/api/convert/${convertType}`,
       filePath,
       name: 'file',
@@ -77,9 +83,9 @@ function uploadWithApp(convertType, filePath, fileName, onProgress) {
   });
 }
 
-// 如果 isDebug=false，用 uploadWithApp；否则用原来直接调用的方式
+// 自动选择上传方式
 function uploadAndConvertAuto(convertType, filePath, fileName, onProgress) {
-  if (app.globalData.isDebug) {
+  if (isDebug()) {
     return uploadAndConvert(convertType, filePath, fileName, onProgress);
   }
   return uploadWithApp(convertType, filePath, fileName, onProgress);
@@ -130,7 +136,7 @@ function openFile(filePath, ext) {
  */
 function generateBarcode(data, barcodeType = 'code128') {
   return new Promise((resolve, reject) => {
-    app.callApi({
+    getApp().callApi({
       url: '/api/generate/barcode',
       method: 'POST',
       data: { data, barcode_type: barcodeType },
@@ -155,7 +161,7 @@ function generateBarcode(data, barcodeType = 'code128') {
  */
 function generateQRCode(data) {
   return new Promise((resolve, reject) => {
-    app.callApi({
+    getApp().callApi({
       url: '/api/generate/qrcode',
       method: 'POST',
       data: { data },
