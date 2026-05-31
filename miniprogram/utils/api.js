@@ -97,9 +97,8 @@ function uploadAndConvertAuto(convertType, filePath, fileName, onProgress) {
  */
 function downloadFile(url, filename, downloadKey) {
   return new Promise((resolve, reject) => {
-    const baseUrl = getBaseUrl();
-    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-    const downloadUrl = fullUrl;
+    // 下载必须用完整 URL，始终使用 CLOUD_HOST
+    const fullUrl = url.startsWith('http') ? url : `${CLOUD_HOST}${url}`;
     wx.downloadFile({
       url: downloadUrl,
       success(res) {
