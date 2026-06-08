@@ -1,6 +1,5 @@
 // pages/result/result.js
 const api = require('../../utils/api');
-const themeUtil = require('../../utils/theme');
 
 Page({
   data: {
@@ -21,14 +20,12 @@ Page({
     downloadKey: '',
     localPath: '',
 
-    // 主题
-    theme: 'blue',
-    themeClass: '',
+    
+    
   },
 
   onLoad(options) {
     // 初始化主题
-    const td = themeUtil.initPageTheme();
     this.setData(td);
     this.setData({
       downloadUrl: decodeURIComponent(options.downloadUrl || ''),

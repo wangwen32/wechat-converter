@@ -1,6 +1,5 @@
 // pages/barcode/barcode.js
 const api = require('../../utils/api');
-const themeUtil = require('../../utils/theme');
 
 Page({
   data: {
@@ -20,13 +19,11 @@ Page({
     resultLocalPath: '',
     resultFileName: '',
 
-    // 主题
-    theme: 'blue',
-    themeClass: '',
+    
+    
   },
 
   onLoad() {
-    const td = themeUtil.initPageTheme();
     this.setData(td);
   },
 

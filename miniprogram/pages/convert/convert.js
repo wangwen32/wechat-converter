@@ -1,6 +1,5 @@
 // pages/convert/convert.js
 const api = require('../../utils/api');
-const themeUtil = require('../../utils/theme');
 
 Page({
   data: {
@@ -20,14 +19,12 @@ Page({
     progress: 0,
     errorMsg: '',
 
-    // 主题
-    theme: 'blue',
-    themeClass: '',
+    
+    
   },
 
   onLoad(options) {
     // 初始化主题
-    const td = themeUtil.initPageTheme();
     this.setData(td);
     const type = options.type || 'pdf2word';
     const config = {

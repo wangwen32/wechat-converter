@@ -3,8 +3,8 @@ const app = getApp();
 
 Page({
   data: {
-    theme: 'blue',
-    themeClass: '',
+    
+    
   },
 
   onLoad() {
@@ -16,25 +16,14 @@ Page({
     });
   },
 
-  onShow() {
     // 每次显示时同步主题（可能从更多页切换了主题回来）
-    const currentTheme = app.globalData.theme || 'blue';
     this.setData({
-      theme: currentTheme,
-      themeClass: currentTheme === 'dark' ? 'theme-dark' : '',
     });
   },
 
   /**
    * 切换主题
    */
-  onToggleTheme() {
-    const newTheme = app.switchTheme();
-    this.setData({
-      theme: newTheme,
-      themeClass: newTheme === 'dark' ? 'theme-dark' : '',
-    });
-  },
 
   /**
    * 点击 PDF → Word

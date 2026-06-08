@@ -7,10 +7,6 @@
         <text class="logo-icon">📄</text>
         <view class="logo-glow"></view>
       </view>
-      <view class="theme-toggle" bindtap="onToggleTheme">
-        <text wx:if="{{ theme === 'blue' }}">🌙</text>
-        <text wx:else>☀️</text>
-      </view>
     </view>
     <text class="title animate-title">文档格式转换</text>
     <text class="subtitle animate-subtitle">PDF ↔ Word 双向转换 · 快速高效</text>

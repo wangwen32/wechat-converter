@@ -3,8 +3,8 @@ const app = getApp();
 
 Page({
   data: {
-    theme: 'blue',
-    themeClass: '',
+    
+    
   },
 
   onLoad() {
@@ -15,29 +15,14 @@ Page({
     });
   },
 
-  onShow() {
     // 从其它页面返回时同步主题
-    const currentTheme = app.globalData.theme || 'blue';
     this.setData({
-      theme: currentTheme,
-      themeClass: currentTheme === 'dark' ? 'theme-dark' : '',
     });
   },
 
   /**
    * 切换主题
    */
-  onToggleTheme() {
-    const newTheme = app.switchTheme();
-    this.setData({
-      theme: newTheme,
-      themeClass: newTheme === 'dark' ? 'theme-dark' : '',
-    });
-    wx.showToast({
-      title: newTheme === 'dark' ? '已切换为高级黑' : '已切换为高级蓝',
-      icon: 'none',
-    });
-  },
 
   /**
    * 清除本地缓存
@@ -60,13 +45,6 @@ Page({
   /**
    * 分享给好友
    */
-  onShare() {
-    wx.showActionSheet({
-      itemList: ['分享给好友'],
-      success: () => {
-        // 触发右上角分享
-        wx.showToast({ title: '点击右上角···分享', icon: 'none' });
-      },
     });
   },
 

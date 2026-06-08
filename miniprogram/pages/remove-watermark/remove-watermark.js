@@ -1,6 +1,5 @@
 // pages/remove-watermark/remove-watermark.js
 const api = require('../../utils/api');
-const themeUtil = require('../../utils/theme');
 
 Page({
   data: {
@@ -15,13 +14,11 @@ Page({
     progress: 0,
     errorMsg: '',
 
-    // 主题
-    theme: 'blue',
-    themeClass: '',
+    
+    
   },
 
   onLoad() {
-    const td = themeUtil.initPageTheme();
     this.setData(td);
   },
 
