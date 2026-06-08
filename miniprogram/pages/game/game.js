@@ -46,7 +46,7 @@ Page({
 
   // ── 开始游戏 ──
   onStartGame() {
-    if (!this.ctx) return wx.showToast({ title: 'Canvas 初始化中', icon: 'none' });
+    if (!this.ctx) return wx.showToast({ title: '初始化中...', icon: 'none' });
     this.setData({ score: 0, gameState: 'playing' });
 
     this.player = { x: (this.W - 36) / 2, y: this.H - 100, w: 36, h: 44 };
@@ -58,14 +58,25 @@ Page({
     this.tX = -1;
     this.running = true;
 
-    // 循环
-    const loop = () => {
+    // 测试：直接画一个红色大圆，验证 draw 能工作
+    this.drawTest();
+
+    // 循环（带 try-catch 防止错误中断）
+    const step = () => {
       if (!this.running) return;
-      this.update();
-      this.draw();
-      this._timer = setTimeout(loop, 16);
+      try { this.update(); } catch(e) { console.error('update err', e); }
+      try { this.draw(); } catch(e) { console.error('draw err', e); }
+      this._timer = setTimeout(step, 16);
     };
-    loop();
+    step();
+  },
+
+  drawTest() {
+    const ctx = this.ctx;
+    ctx.fillStyle = '#FF0000';
+    ctx.beginPath();
+    ctx.arc(100, 100, 50, 0, Math.PI*2);
+    ctx.fill();
   },
 
   onPause() {
