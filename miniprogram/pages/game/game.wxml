@@ -4,20 +4,19 @@
   bindtouchmove="onTouchMove"
   bindtouchend="onTouchEnd">
 
-  <canvas canvas-id="gameCanvas" class="game-canvas"></canvas>
+  <view class="canvas-box">
+    <canvas type="2d" id="gameCanvas" class="game-canvas"></canvas>
+  </view>
 
-  <!-- 暂停按钮（游戏中显示） -->
   <view wx:if="{{ gameState === 'playing' }}" class="pause-btn" bindtap="onPause">
     <text class="pause-icon">⏸</text>
   </view>
 
-  <!-- 分数 -->
   <view class="score-board">
     <text class="score-label">得分</text>
     <text class="score-value">{{ score }}</text>
   </view>
 
-  <!-- 开始界面 -->
   <view wx:if="{{ gameState === 'ready' }}" class="overlay">
     <view class="overlay-content">
       <text class="overlay-title">✏️ 飞机大战</text>
@@ -26,18 +25,15 @@
     </view>
   </view>
 
-  <!-- 暂停界面 -->
   <view wx:elif="{{ gameState === 'paused' }}" class="overlay">
     <view class="overlay-content">
       <text class="overlay-icon">⏸</text>
-      <text class="overlay-title">暂停</text>
-      <text class="overlay-desc">当前得分：{{ score }}</text>
+      <text class="overlay-title">暂停 · {{ score }}分</text>
       <button class="btn-start" bindtap="onResume">继续游戏</button>
       <text class="btn-back" bindtap="onQuit">退出游戏</text>
     </view>
   </view>
 
-  <!-- 结束界面 -->
   <view wx:elif="{{ gameState === 'gameover' }}" class="overlay">
     <view class="overlay-content">
       <text class="overlay-icon">💥</text>
