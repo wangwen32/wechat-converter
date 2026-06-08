@@ -70,21 +70,31 @@ Page({
       if (this.bullets[i].y < -20) this.bullets.splice(i, 1);
     }
 
-    // 3. 敌机
-    const level = Math.floor(this.data.score / 1000);
-    const spawnTick = Math.max(20, 45 - level * 8);
-    const maxEnemies = Math.min(20, 8 + level * 3);
+    // 3. 敌机 — 按分数阶段递增难度
+    // 0-500分: 简单 | 500-1000: 中等 | 1000-2000: 困难 | 2000+: 噩梦
+    const score = this.data.score;
+    const level = score < 500 ? 0 : score < 1000 ? 1 : score < 2000 ? 2 : 3;
+    const spawnTick = [45, 35, 25, 18][level];        // 生成间隔
+    const maxEnemies = [8, 12, 16, 22][level];         // 场上最大数量
+    const minSpeed = [1, 1.5, 2, 2.5][level];
+    const maxSpeed = [2, 3, 4, 5][level];
+    const sizes = [20, 22, 24, 26][level];             // 敌机越来越大
 
     if (this.tick % spawnTick === 0 && this.enemies.length < maxEnemies) {
-      const s = 20 + Math.random() * 16;
+      const s = sizes + Math.random() * 10;
       this.enemies.push({
         id: this.nextId++, x: Math.random() * this.W, y: -s,
-        w: s, h: s, speed: 1 + level * 0.3 + Math.random() * 2,
+        w: s, h: s, speed: minSpeed + Math.random() * (maxSpeed - minSpeed),
       });
     }
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       this.enemies[i].y += this.enemies[i].speed;
-      if (this.enemies[i].y > this.H + 30) this.enemies.splice(i, 1);
+      // 敌机越过底线 → 游戏结束
+      if (this.enemies[i].y > this.H - 10) {
+        this.explosions.push({ id: this.nextId++, x: this.pos.x, y: this.pos.y, t: 0 });
+        this.gameOver();
+        return;
+      }
     }
 
     // 4. 碰撞（子弹 vs 敌机）
