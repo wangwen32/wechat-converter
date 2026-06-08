@@ -180,19 +180,26 @@ Page({
       ctx.stroke();
     }
 
-    // 玩家
-    ctx.lineWidth = 3;
-    if (this.player && this.data.gameState === 'playing') {
+    // 玩家（蓝色三角，简单可靠）
+    // 绘制状态文字（验证 draw 被调用）
+    ctx.fillStyle = 'rgba(0,0,0,0.1)';
+    ctx.font = '20px sans-serif';
+    ctx.fillText('draw OK', 20, 40);
+
+    // 玩家（蓝色三角）
+    if (this.player) {
+      ctx.strokeStyle = '#2B5CE8';
+      ctx.lineWidth = 3;
       const p = this.player;
       ctx.beginPath();
-      ctx.moveTo(p.x+p.w/2, p.y);          // 机头
-      ctx.lineTo(p.x+p.w, p.y+p.h*0.6);    // 右翼尖
-      ctx.lineTo(p.x+p.w*0.7, p.y+p.h);    // 右下
-      ctx.lineTo(p.x+p.w/2, p.y+p.h*0.8);  // 机尾中
-      ctx.lineTo(p.x+p.w*0.3, p.y+p.h);    // 左下
-      ctx.lineTo(p.x, p.y+p.h*0.6);        // 左翼尖
+      ctx.moveTo(p.x+p.w/2, p.y);
+      ctx.lineTo(p.x+p.w, p.y+p.h);
+      ctx.lineTo(p.x, p.y+p.h);
       ctx.closePath();
       ctx.stroke();
+      ctx.fillStyle = '#2B5CE8';
+      ctx.font = '12px sans-serif';
+      ctx.fillText('玩家', p.x, p.y-5);
     }
 
     // 爆炸
