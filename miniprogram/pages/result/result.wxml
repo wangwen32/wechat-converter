@@ -1,5 +1,5 @@
 <!-- pages/result/result.wxml -->
-<view class="container {{themeClass}}">
+<view class="container">
   <!-- 转换中... -->
   <view wx:if="{{ status === 'converting' }}" class="center-status">
     <view class="spinner"></view>

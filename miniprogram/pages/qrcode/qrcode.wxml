@@ -1,5 +1,5 @@
 <!-- pages/qrcode/qrcode.wxml -->
-<view class="container {{themeClass}}">
+<view class="container">
   <!-- 页面标题 -->
   <view class="page-header">
     <view class="page-icon-bg">

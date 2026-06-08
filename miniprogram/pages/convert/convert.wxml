@@ -1,5 +1,5 @@
 <!-- pages/convert/convert.wxml -->
-<view class="container {{themeClass}}">
+<view class="container">
   <!-- 顶部进度指示 -->
   <view class="step-indicator">
     <view class="step-item active">

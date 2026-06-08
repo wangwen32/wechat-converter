@@ -1,5 +1,5 @@
 <!-- pages/more/more.wxml -->
-<view class="container {{themeClass}}">
+<view class="container">
   <!-- 页面标题 -->
   <view class="page-header">
     <view class="page-icon-bg">

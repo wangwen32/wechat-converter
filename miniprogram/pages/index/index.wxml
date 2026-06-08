@@ -1,5 +1,5 @@
 <!-- pages/index/index.wxml -->
-<view class="container {{themeClass}}">
+<view class="container">
   <!-- 头部 -->
   <view class="header animate-header">
     <view class="header-top">
