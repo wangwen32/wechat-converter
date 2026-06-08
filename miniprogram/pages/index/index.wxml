@@ -97,6 +97,21 @@
       </view>
     </view>
 
+    <!-- 游戏入口 -->
+    <view class="func-card animate-card card-7" bindtap="onGame">
+      <view class="func-icon game-bg">
+        <text class="icon-text">🎮</text>
+      </view>
+      <view class="func-info">
+        <text class="func-title">飞机大战</text>
+        <text class="func-desc">铅笔线稿 · 消灭敌机挑战高分</text>
+        <view class="func-tag tag-new">新</view>
+      </view>
+      <view class="arrow-circle">
+        <text class="arrow">→</text>
+      </view>
+    </view>
+
   </view>
 
   <!-- 更多选项入口 -->

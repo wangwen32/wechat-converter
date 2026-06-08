@@ -73,6 +73,13 @@ Page({
   },
 
   /**
+   * 点击 飞机大战
+   */
+  onGame() {
+    wx.navigateTo({ url: '/pages/game/game' });
+  },
+
+  /**
    * 点击 二维码生成
    */
   onQRCode() {

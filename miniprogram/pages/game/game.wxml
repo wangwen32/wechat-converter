@@ -1,0 +1,63 @@
+<!-- pages/game/game.wxml — DOM 版飞机大战 -->
+<view class="container"
+  bindtouchstart="onTouchStart"
+  bindtouchmove="onTouchMove"
+  bindtouchend="onTouchEnd">
+
+  <!-- 玩家飞机 -->
+  <view class="player" style="left:{{playerX}}px;top:{{playerY}}px;" wx:if="{{ showPlayer }}">
+    <view class="player-body"></view>
+  </view>
+
+  <!-- 子弹 -->
+  <view wx:for="{{ bullets }}" wx:key="id" class="bullet" style="left:{{item.x}}px;top:{{item.y}}px;"></view>
+
+  <!-- 敌机 -->
+  <view wx:for="{{ enemies }}" wx:key="id" class="enemy" style="left:{{item.x}}px;top:{{item.y}}px;"></view>
+
+  <!-- 爆炸 -->
+  <view wx:for="{{ explosions }}" wx:key="id" class="explosion" style="left:{{item.x}}px;top:{{item.y}}px;">
+    <view class="ex-particle" wx:for="{{item.particles}}" wx:key="*this"></view>
+  </view>
+
+  <!-- 分数 -->
+  <view class="score-board">
+    <text class="score-label">得分</text>
+    <text class="score-value">{{ score }}</text>
+  </view>
+
+  <!-- 暂停按钮 -->
+  <view wx:if="{{ gameState === 'playing' }}" class="pause-btn" bindtap="onPause">
+    <text class="pause-btn-text">⏸</text>
+  </view>
+
+  <!-- 开始界面 -->
+  <view wx:if="{{ gameState === 'ready' }}" class="overlay">
+    <view class="overlay-box">
+      <text class="overlay-title">✏️ 飞机大战</text>
+      <text class="overlay-desc">手指滑动控制 · 消灭敌机</text>
+      <button class="btn-primary" bindtap="onStart">开始游戏</button>
+    </view>
+  </view>
+
+  <!-- 暂停界面 -->
+  <view wx:elif="{{ gameState === 'paused' }}" class="overlay">
+    <view class="overlay-box">
+      <text class="overlay-title">⏸ 暂停</text>
+      <text class="overlay-desc">得分：{{ score }}</text>
+      <button class="btn-primary" bindtap="onResume">继续游戏</button>
+      <text class="link-btn" bindtap="onQuit">退出</text>
+    </view>
+  </view>
+
+  <!-- 结束界面 -->
+  <view wx:elif="{{ gameState === 'gameover' }}" class="overlay">
+    <view class="overlay-box">
+      <text class="overlay-title">💥 游戏结束</text>
+      <text class="overlay-score">得分：{{ score }}</text>
+      <text class="overlay-best">最高：{{ bestScore }}</text>
+      <button class="btn-primary" bindtap="onStart">再来一局</button>
+      <text class="link-btn" bindtap="onQuit">退出</text>
+    </view>
+  </view>
+</view>
