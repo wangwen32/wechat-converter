@@ -128,4 +128,11 @@ Page({
       },
     });
   },
+
+  onShareAppMessage() {
+    return {
+      title: '文件转换完成 - PDF文档转换工具',
+      path: '/pages/index/index',
+    };
+  },
 });

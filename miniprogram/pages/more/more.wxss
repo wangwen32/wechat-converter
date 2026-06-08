@@ -32,6 +32,29 @@
 .menu-arrow { font-size: 20px; color: rgba(0, 0, 0, 0.15); flex-shrink: 0; }
 .menu-divider { height: 1px; background: rgba(0, 0, 0, 0.04); margin: 0; }
 
+/* ── 分享按钮（覆盖 button 默认样式） ── */
+.menu-share-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 0 !important;
+  margin: 0 !important;
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  line-height: normal !important;
+  font-size: inherit !important;
+  width: 100% !important;
+  text-align: left !important;
+}
+.menu-share-btn::after {
+  display: none !important;
+}
+.menu-share-btn:active {
+  opacity: 0.6;
+  transform: scale(0.98);
+}
+
 /* ── 底部 ── */
 .footer { display: flex; justify-content: center; padding: 32px 0; }
 .footer-text { font-size: 12px; color: rgba(0, 0, 0, 0.2); }

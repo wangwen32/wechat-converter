@@ -98,4 +98,11 @@ Page({
       url: '/pages/more/more',
     });
   },
+
+  onShareAppMessage() {
+    return {
+      title: 'PDF文档转换工具 - 免费在线转换',
+      path: '/pages/index/index',
+    };
+  },
 });

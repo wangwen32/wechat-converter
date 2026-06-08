@@ -101,4 +101,11 @@ Page({
       wx.showToast({ title: err.message || '保存失败', icon: 'none' });
     }
   },
+
+  onShareAppMessage() {
+    return {
+      title: '条形码生成 - PDF文档转换工具',
+      path: '/pages/barcode/barcode',
+    };
+  },
 });

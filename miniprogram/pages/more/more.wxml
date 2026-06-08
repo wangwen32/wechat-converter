@@ -45,7 +45,7 @@
 
     <view class="menu-divider"></view>
 
-    <view class="menu-item" bindtap="onShare">
+    <button class="menu-item menu-share-btn" open-type="share">
       <view class="menu-left">
         <text class="menu-icon">📤</text>
         <view class="menu-info">
@@ -54,7 +54,7 @@
         </view>
       </view>
       <text class="menu-arrow">›</text>
-    </view>
+    </button>
 
     <view class="menu-divider"></view>
 

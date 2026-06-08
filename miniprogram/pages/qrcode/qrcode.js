@@ -91,4 +91,11 @@ Page({
       },
     });
   },
+
+  onShareAppMessage() {
+    return {
+      title: '二维码生成 - PDF文档转换工具',
+      path: '/pages/qrcode/qrcode',
+    };
+  },
 });
