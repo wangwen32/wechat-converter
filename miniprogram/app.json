@@ -7,8 +7,7 @@
     "pages/barcode/barcode",
     "pages/qrcode/qrcode",
     "pages/remove-watermark/remove-watermark",
-    "pages/more/more",
-    "pages/game/game"
+    "pages/more/more"
   ],
   "window": {
     "navigationBarBackgroundColor": "#FFF8F0",
