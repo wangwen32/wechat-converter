@@ -71,9 +71,9 @@ Page({
     }
 
     // 3. 敌机 — 按分数阶段递增难度
-    // 0-500分: 简单 | 500-1000: 中等 | 1000-2000: 困难 | 2000+: 噩梦
+    // 每400分升一档: 0-399简单 | 400-799中等 | 800-1199困难 | 1200+噩梦
     const score = this.data.score;
-    const level = score < 500 ? 0 : score < 1000 ? 1 : score < 2000 ? 2 : 3;
+    const level = score < 400 ? 0 : score < 800 ? 1 : score < 1200 ? 2 : 3;
     const spawnTick = [45, 35, 25, 18][level];        // 生成间隔
     const maxEnemies = [8, 12, 16, 22][level];         // 场上最大数量
     const minSpeed = [1, 1.5, 2, 2.5][level];
