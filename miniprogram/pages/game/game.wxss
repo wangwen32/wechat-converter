@@ -82,8 +82,8 @@
 /* ── 敌机 — 手绘菱形 ── */
 .enemy {
   position: absolute;
-  border: 2px dashed rgba(44,44,44,0.7);
-  background: rgba(44,44,44,0.04);
+  border: 2.5px dashed rgba(44,44,44,0.9);
+  background: rgba(44,44,44,0.12);
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   z-index: 5;
 }
