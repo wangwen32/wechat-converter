@@ -91,6 +91,15 @@ Page({
   },
 
   /**
+   * 点击 飞机大战
+   */
+  onGame() {
+    wx.navigateTo({
+      url: '/pages/game/game',
+    });
+  },
+
+  /**
    * 更多选项
    */
   onMore() {

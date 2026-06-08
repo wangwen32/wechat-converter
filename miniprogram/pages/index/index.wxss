@@ -108,10 +108,11 @@
 .card-4 { animation-delay: 0.36s; }
 .card-5 { animation-delay: 0.43s; }
 .card-6 { animation-delay: 0.50s; }
+.card-7 { animation-delay: 0.57s; }
 
 .animate-more {
   opacity: 0;
-  animation: fadeInUp 0.5s ease-out 0.55s forwards;
+  animation: fadeInUp 0.5s ease-out 0.62s forwards;
 }
 
 /* ── 功能卡片 ── */
@@ -163,6 +164,7 @@
 .func-card:nth-child(4)::before { background: linear-gradient(180deg, #0EA5E9, #38BDF8); }
 .func-card:nth-child(5)::before { background: linear-gradient(180deg, #8B5CF6, #A78BFA); }
 .func-card:nth-child(6)::before { background: linear-gradient(180deg, #EC4899, #F472B6); }
+.func-card:nth-child(7)::before { background: linear-gradient(180deg, #10B981, #34D399); }
 
 .func-icon {
   width: 54px;
@@ -186,12 +188,17 @@
 .barcode-bg { background: linear-gradient(135deg, #ECFEFF, #CFFAFE); }
 .qrcode-bg { background: linear-gradient(135deg, #F5F3FF, #EDE9FE); }
 .watermark-bg { background: linear-gradient(135deg, #FFF1F2, #FFE4E6); }
+.game-bg { background: linear-gradient(135deg, #F0FFF0, #D4EDDA); }
 
 .icon-text { font-size: 26px; }
 
 .func-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .func-title { font-size: 17px; font-weight: 600; color: #1A2332; }
 .func-desc { font-size: 13px; color: rgba(0, 0, 0, 0.4); line-height: 1.4; }
+
+.tag-new {
+  background: linear-gradient(135deg, #10B981, #34D399) !important;
+}
 
 .func-tag {
   display: inline-block;
