@@ -115,11 +115,16 @@ Page({
   onRetry() {
     this.setData({ status: 'idle', progress: 0, errorMsg: '' });
   },
-
   onShareAppMessage() {
     return {
-      title: 'PDF去水印 - PDF文档转换工具',
+      title: "PDF去水印 - PDF文档转换工具",
       path: '/pages/remove-watermark/remove-watermark',
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: 'PDF文档转换工具',
     };
   },
 });

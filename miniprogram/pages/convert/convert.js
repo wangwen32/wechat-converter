@@ -143,11 +143,16 @@ Page({
       errorMsg: '',
     });
   },
-
   onShareAppMessage() {
     return {
-      title: this.data.convertLabel || 'PDF文档转换',
-      path: `/pages/convert/convert?type=${this.data.convertType}`,
+      title: this.data.convertLabel || "文档转换",
+      path: '/pages/convert/convert?type=${this.data.convertType}',
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: 'PDF文档转换工具',
     };
   },
 });

@@ -114,11 +114,16 @@ Page({
   onRetry() {
     this.setData({ status: 'idle', progress: 0, errorMsg: '' });
   },
-
   onShareAppMessage() {
     return {
-      title: '图片转PDF - PDF文档转换工具',
+      title: "图片转PDF - PDF文档转换工具",
       path: '/pages/img2pdf/img2pdf',
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: 'PDF文档转换工具',
     };
   },
 });
