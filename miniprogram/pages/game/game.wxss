@@ -1,80 +1,129 @@
 /* ══════════════════════════════════════════
-   DOM 版飞机大战 — 铅笔线稿风格
+   飞机大战 — 铅笔线稿风格
    ══════════════════════════════════════════ */
+
 .container {
   position: relative; width: 100vw; height: 100vh;
   background: #FFF8F0; overflow: hidden;
 }
 
-/* ── 玩家飞机 ── */
-.player {
-  position: absolute; width: 44px; height: 50px;
-  transform: translate(-50%, -50%);
-  z-index: 10;
+/* ── 网格背景 ── */
+.grid-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 30px 30px;
 }
-.player-body {
+
+/* ── 玩家飞机 ✈️ ── */
+.player {
+  position: absolute; width: 50px; height: 58px;
+  transform: translate(-50%, -50%); z-index: 10;
+}
+.plane-body {
+  width: 100%; height: 100%; position: relative;
+}
+/* 机身 */
+.plane-body::before {
+  content: ''; position: absolute;
+  top: 2px; left: 50%; transform: translateX(-50%);
+  width: 10px; height: 40px;
+  background: #2C2C2C;
+  clip-path: polygon(50% 0%, 35% 25%, 35% 75%, 50% 100%, 65% 75%, 65% 25%);
+}
+/* 机头 */
+.plane-body::after {
+  content: ''; position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
   width: 0; height: 0;
-  border-left: 14px solid transparent;
-  border-right: 14px solid transparent;
-  border-bottom: 40px solid #2C2C2C;
-  position: relative;
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 16px solid #2C2C2C;
+}
+/* 左翼 */
+.wing-left {
+  position: absolute; top: 20px; left: 0;
+  width: 20px; height: 6px; background: #2C2C2C;
+  clip-path: polygon(100% 0%, 100% 100%, 0% 50%);
+}
+/* 右翼 */
+.wing-right {
+  position: absolute; top: 20px; right: 0;
+  width: 20px; height: 6px; background: #2C2C2C;
+  clip-path: polygon(0% 0%, 0% 100%, 100% 50%);
+}
+/* 尾翼 */
+.tail {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 10px solid #2C2C2C;
 }
 
 /* ── 子弹 ── */
 .bullet {
-  position: absolute; width: 3px; height: 12px;
-  background: #2C2C2C; border-radius: 1px;
+  position: absolute; width: 4px; height: 14px;
   z-index: 5;
 }
+.bullet-head {
+  width: 100%; height: 100%;
+  background: #2C2C2C;
+  clip-path: polygon(50% 0%, 30% 40%, 30% 100%, 70% 100%, 70% 40%);
+}
 
-/* ── 敌机 ── */
+/* ── 敌机（菱形） ── */
 .enemy {
-  position: absolute; width: 28px; height: 28px;
+  position: absolute;
   background: #2C2C2C;
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   z-index: 5;
 }
 
-/* ── 爆炸 ── */
-.explosion {
-  position: absolute;
-  width: 10px; height: 10px;
-  transform: translate(-50%, -50%);
-  z-index: 15;
+/* ── 爆炸特效 ── */
+.ex-area {
+  position: absolute; width: 10px; height: 10px;
+  transform: translate(-50%, -50%); z-index: 15;
   pointer-events: none;
 }
-.ex-particle {
-  position: absolute;
-  width: 4px; height: 4px;
-  background: #2C2C2C;
+.ex-ring {
+  position: absolute; inset: -15px;
   border-radius: 50%;
+  border: 2px solid #2C2C2C;
+  opacity: 0;
+  animation: exExpand 0.4s ease-out forwards;
+}
+.ex-r2 { animation-delay: 0.1s; border-width: 3px; }
+.ex-r3 { animation-delay: 0.2s; }
+
+@keyframes exExpand {
+  0% { transform: scale(0.3); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
 }
 
 /* ── 分数 ── */
 .score-board {
-  position: absolute; top: 60px; left: 50%;
+  position: absolute; top: 48px; left: 50%;
   transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center;
   z-index: 20; pointer-events: none;
 }
-.score-label { font-size: 12px; color: rgba(0,0,0,0.25); letter-spacing: 2px; }
-.score-value { font-size: 36px; font-weight: 700; color: rgba(0,0,0,0.12); }
+.score-label { font-size: 12px; color: rgba(0,0,0,0.2); letter-spacing: 2px; }
+.score-value { font-size: 40px; font-weight: 700; color: rgba(0,0,0,0.1); line-height: 1; margin-top: 2px; }
 
-/* ── 暂停按钮 ── */
+/* ── 暂停 ── */
 .pause-btn {
-  position: absolute; top: 64px; right: 16px;
-  width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(0,0,0,0.04);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 20;
+  position: absolute; top: 56px; right: 16px;
+  width: 40px; height: 40px; line-height: 40px; text-align: center;
+  font-size: 20px; border-radius: 50%;
+  background: rgba(0,0,0,0.04); z-index: 20;
 }
 .pause-btn:active { background: rgba(0,0,0,0.08); }
-.pause-btn-text { font-size: 20px; }
 
 /* ── 覆盖层 ── */
 .overlay {
-  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
   background: rgba(255,248,240,0.93); z-index: 30;
 }
@@ -82,18 +131,14 @@
   display: flex; flex-direction: column; align-items: center; gap: 12px;
 }
 .overlay-title { font-size: 26px; font-weight: 700; color: #1A2332; }
-.overlay-desc { font-size: 14px; color: rgba(0,0,0,0.35); }
+.overlay-desc { font-size: 14px; color: rgba(0,0,0,0.3); }
 .overlay-score { font-size: 20px; font-weight: 600; color: #1A2332; }
-.overlay-best { font-size: 14px; color: rgba(0,0,0,0.35); }
-
+.overlay-best { font-size: 14px; color: rgba(0,0,0,0.3); }
 .btn-primary {
   min-width: 160px; height: 44px; line-height: 44px;
   background: #1A2332; color: #FFF8F0; font-size: 16px; font-weight: 600;
   border-radius: 22px; text-align: center; border: none; padding: 0 32px;
 }
 .btn-primary:active { opacity: 0.8; }
-
-.link-btn {
-  font-size: 14px; color: rgba(0,0,0,0.3); padding: 8px 0;
-}
+.link-btn { font-size: 14px; color: rgba(0,0,0,0.25); padding: 8px 0; }
 .link-btn:active { opacity: 0.5; }
