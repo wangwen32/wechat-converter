@@ -53,6 +53,6 @@
 
   <!-- 底部版本号 -->
   <view class="footer">
-    <text class="footer-text">版本 1.0.0</text>
+    <text class="footer-text">版本 3.0.0</text>
   </view>
 </view>
