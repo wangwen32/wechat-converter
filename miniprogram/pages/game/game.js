@@ -57,7 +57,7 @@ Page({
     // 1. 玩家横向移动
     if (this.tX >= 0) {
       this.pos.x += (this.tX - this.pos.x) * 0.25;
-      this.pos.x = Math.max(25, Math.min(this.W - 25, this.pos.x));
+      this.pos.x = Math.max(18, Math.min(this.W - 18, this.pos.x));
     }
 
     // 2. 子弹
