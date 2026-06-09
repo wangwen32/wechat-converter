@@ -25,8 +25,7 @@ Page({
   },
 
   onLoad(options) {
-    // 初始化主题
-    this.setData(td);
+    
     this.setData({
       downloadUrl: decodeURIComponent(options.downloadUrl || ''),
       filename: decodeURIComponent(options.filename || ''),

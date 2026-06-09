@@ -9,6 +9,8 @@ Page({
   onImgToPdf() { wx.navigateTo({ url: '/pages/img2pdf/img2pdf' }); },
   onBarcode() { wx.navigateTo({ url: '/pages/barcode/barcode' }); },
   onGame() { wx.navigateTo({ url: '/pages/game/game' }); },
+  onGomoku() { wx.navigateTo({ url: '/pages/gomoku/gomoku' }); },
+  onColorMatch() { wx.navigateTo({ url: '/pages/color-match/color-match' }); },
   onQRCode() { wx.navigateTo({ url: '/pages/qrcode/qrcode' }); },
   onRemoveWatermark() { wx.navigateTo({ url: '/pages/remove-watermark/remove-watermark' }); },
   onMore() { wx.navigateTo({ url: '/pages/more/more' }); },

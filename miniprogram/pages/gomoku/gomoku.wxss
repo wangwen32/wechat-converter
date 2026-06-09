@@ -1,0 +1,48 @@
+/* ══════════════════════════════════════════
+   手绘五子棋 — 铅笔素描风格
+   ══════════════════════════════════════════ */
+.container {
+  position: relative; width: 100vw; height: 100vh;
+  background: #FFF8F0; overflow: hidden;
+}
+
+.game-canvas {
+  width: 100%; height: 100%;
+}
+
+/* ── 状态栏 ── */
+.status-bar {
+  position: absolute; top: 46px; left: 50%; transform: translateX(-50%);
+  z-index: 20; pointer-events: none;
+}
+.status-text {
+  font-size: 15px; color: rgba(0,0,0,0.35); letter-spacing: 1px;
+}
+
+/* ── 重来按钮 ── */
+.restart-btn {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  font-size: 14px; color: rgba(0,0,0,0.3); padding: 8px 24px;
+  border: 1px dashed rgba(0,0,0,0.15); border-radius: 20px;
+  z-index: 20;
+}
+.restart-btn:active { opacity: 0.5; }
+
+/* ── 覆盖层 ── */
+.overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,248,240,0.93); z-index: 30;
+}
+.overlay-box { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.overlay-title { font-size: 26px; font-weight: 700; color: #1A2332; }
+.overlay-desc { font-size: 14px; color: rgba(0,0,0,0.3); }
+.overlay-score { font-size: 18px; color: #1A2332; }
+.btn-primary {
+  min-width: 160px; height: 44px; line-height: 44px;
+  background: #1A2332; color: #FFF8F0; font-size: 16px; font-weight: 600;
+  border-radius: 22px; text-align: center; border: none; padding: 0 32px;
+}
+.btn-primary:active { opacity: 0.8; }
+.link-btn { font-size: 14px; color: rgba(0,0,0,0.25); padding: 8px 0; }
+.link-btn:active { opacity: 0.5; }

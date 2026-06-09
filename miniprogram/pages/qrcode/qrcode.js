@@ -15,7 +15,7 @@ Page({
   },
 
   onLoad() {
-    this.setData(td);
+    
   },
 
   onInputChange(e) {

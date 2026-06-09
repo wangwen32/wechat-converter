@@ -20,7 +20,7 @@
       </view>
       <view class="func-info">
         <text class="func-title">PDF → Word</text>
-        <text class="func-desc">将 PDF 文件转换为可编辑的 Word 文档</text>
+        <text class="func-desc">PDF转换为WORD，请耐心等待吧</text>
         <view class="func-tag">推荐</view>
       </view>
       <view class="arrow-circle">
@@ -108,6 +108,19 @@
       </view>
     </view>
 
+    <!-- 五子棋入口 -->
+    <view class="func-card animate-card card-8" bindtap="onGomoku">
+      <view class="func-icon gomoku-bg">
+        <text class="icon-text">⚫</text>
+      </view>
+      <view class="func-info">
+        <text class="func-title">手绘五子棋</text>
+        <text class="func-desc">素描风格 · 人机对战先手黑棋</text>
+      </view>
+      <view class="arrow-circle">
+        <text class="arrow">→</text>
+      </view>
+    </view>
   </view>
 
   <!-- 更多选项入口 -->

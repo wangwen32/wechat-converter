@@ -24,8 +24,7 @@ Page({
   },
 
   onLoad(options) {
-    // 初始化主题
-    this.setData(td);
+    
     const type = options.type || 'pdf2word';
     const config = {
       'pdf2word': { label: 'PDF → Word', accept: '.pdf' },

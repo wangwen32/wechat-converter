@@ -19,7 +19,7 @@ Page({
   },
 
   onLoad() {
-    this.setData(td);
+    
   },
 
   /**

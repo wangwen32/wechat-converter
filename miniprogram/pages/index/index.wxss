@@ -89,10 +89,11 @@
 .card-5 { animation-delay: 0.43s; }
 .card-6 { animation-delay: 0.50s; }
 .card-7 { animation-delay: 0.57s; }
+.card-8 { animation-delay: 0.64s; }
 
 .animate-more {
   opacity: 0;
-  animation: fadeInUp 0.5s ease-out 0.64s forwards;
+  animation: fadeInUp 0.5s ease-out 0.71s forwards;
 }
 
 /* ── 功能卡片 ── */
@@ -145,6 +146,7 @@
 .func-card:nth-child(5)::before { background: linear-gradient(180deg, #8B5CF6, #A78BFA); }
 .func-card:nth-child(6)::before { background: linear-gradient(180deg, #EC4899, #F472B6); }
 .func-card:nth-child(7)::before { background: linear-gradient(180deg, #10B981, #34D399); }
+.func-card:nth-child(8)::before { background: linear-gradient(180deg, #8B5CF6, #A78BFA); }
 
 .func-icon {
   width: 54px;
@@ -169,6 +171,7 @@
 .qrcode-bg { background: linear-gradient(135deg, #F5F3FF, #EDE9FE); }
 .watermark-bg { background: linear-gradient(135deg, #FFF1F2, #FFE4E6); }
 .game-bg { background: linear-gradient(135deg, #F0FFF0, #D4EDDA); }
+.gomoku-bg { background: linear-gradient(135deg, #F5F0FF, #EDE4FF); }
 
 .icon-text { font-size: 26px; }
 

@@ -1,0 +1,7 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "手绘五子棋",
+  "navigationBarBackgroundColor": "#FFF8F0",
+  "navigationBarTextStyle": "black",
+  "disableScroll": true
+}
