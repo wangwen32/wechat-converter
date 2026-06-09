@@ -1,31 +1,4 @@
 <!-- pages/gomoku/gomoku.wxml -->
 <view class="container">
   <canvas canvas-id="gobanCanvas" class="game-canvas" bindtap="onTap"></canvas>
-
-  <!-- 状态 -->
-  <view class="status-bar">
-    <text class="status-text">{{ statusText }}</text>
-  </view>
-
-  <!-- 重新开始 -->
-  <view class="restart-btn" bindtap="onRestart">⟳ 重来</view>
-
-  <!-- 开始界面 -->
-  <view wx:if="{{ gameState === 'ready' }}" class="overlay">
-    <view class="overlay-box">
-      <text class="overlay-title">✏️ 手绘五子棋</text>
-      <text class="overlay-desc">素描风格 · 先手黑棋</text>
-      <button class="btn-primary" bindtap="onStart">开始下棋</button>
-    </view>
-  </view>
-
-  <!-- 结束界面 -->
-  <view wx:elif="{{ gameState === 'gameover' }}" class="overlay">
-    <view class="overlay-box">
-      <text class="overlay-title">{{ resultText }}</text>
-      <text class="overlay-desc">{{ winCount }}</text>
-      <button class="btn-primary" bindtap="onRestart">再来一局</button>
-      <text class="link-btn" bindtap="onQuit">退出</text>
-    </view>
-  </view>
 </view>
