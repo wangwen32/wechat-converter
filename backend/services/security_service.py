@@ -5,21 +5,10 @@
 """
 
 import os
-import json
-import ssl
-import httpx
 import logging
-import urllib3
-
-# 禁用 SSL 警告（云托管环境证书问题）
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+import httpx
 
 logger = logging.getLogger(__name__)
-
-# 创建不验证证书的 SSL 上下文
-_ssl_ctx = ssl.create_default_context()
-_ssl_ctx.check_hostname = False
-_ssl_ctx.verify_mode = ssl.CERT_NONE
 
 # 从环境变量读取微信小程序配置
 APPID = os.getenv("WECHAT_APPID", "")
@@ -42,13 +31,12 @@ async def get_access_token() -> str:
 
     url = f"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={APPID}&secret={APPSECRET}"
 
-    async with httpx.AsyncClient(timeout=10.0, verify=_ssl_ctx) as client:
+    async with httpx.AsyncClient(timeout=10.0, verify=False) as client:
         resp = await client.get(url)
         data = resp.json()
 
         if "access_token" in data:
             _token_cache["token"] = data["access_token"]
-            # 提前 5 分钟过期，留有余量
             _token_cache["expires_at"] = now + data.get("expires_in", 7200) - 300
             return data["access_token"]
         else:
@@ -64,9 +52,6 @@ async def check_image(file_path: str) -> dict:
 
     Returns:
         {"safe": True} 或 {"safe": False, "detail": "违规描述"}
-
-    Raises:
-        RuntimeError: API 调用失败
     """
     if not os.path.isfile(file_path):
         return {"safe": True, "detail": "文件不存在，跳过校验"}
@@ -80,7 +65,7 @@ async def check_image(file_path: str) -> dict:
     url = f"https://api.weixin.qq.com/wxa/img_sec_check?access_token={token}"
 
     try:
-        async with httpx.AsyncClient(timeout=15.0, verify=_ssl_ctx) as client:
+        async with httpx.AsyncClient(timeout=15.0, verify=False) as client:
             with open(file_path, "rb") as f:
                 files = {"media": (os.path.basename(file_path), f, "image/png")}
                 resp = await client.post(url, files=files)
@@ -91,16 +76,14 @@ async def check_image(file_path: str) -> dict:
             if errcode == 0:
                 logger.info("图片安全校验通过: %s", file_path)
                 return {"safe": True}
-
             elif errcode == 87014:
                 logger.warning("图片包含违规内容: %s", file_path)
                 return {"safe": False, "detail": "图片内容包含违规信息"}
-
             else:
                 errmsg = result.get("errmsg", "未知错误")
                 logger.warning("图片安全校验异常(%d): %s", errcode, errmsg)
                 return {"safe": True, "detail": f"校验异常({errcode})，已放行"}
 
     except Exception as e:
-        logger.warning("图片安全校验网络错误: %s", str(e))
-        return {"safe": True, "detail": "校验网络错误，已放行"}
+        logger.warning("图片安全校验错误: %s", str(e))
+        return {"safe": True, "detail": "校验失败，已放行"}
