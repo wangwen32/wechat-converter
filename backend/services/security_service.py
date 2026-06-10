@@ -54,9 +54,9 @@ async def check_image(file_path: str, openid: str = "", media_url: str = "") -> 
 
     try:
         token = await get_access_token()
-    except RuntimeError as e:
-        logger.warning("安全校验跳过: %s", e)
-        return {"safe": True}
+    except Exception as e:
+        logger.warning("安全校验跳过(token获取失败): %s", str(e)[:120])
+        return {"safe": True, "detail": f"token获取失败"}
 
     # 如果没有 media_url，用我们自己的下载地址
     if not media_url:
