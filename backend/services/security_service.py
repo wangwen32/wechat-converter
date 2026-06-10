@@ -1,14 +1,13 @@
 """微信内容安全校验服务
 
 调用微信官方 API 校验内容安全：
-  - /wxa/media_check_async  多媒体（图片）内容安全识别
+  - /wxa/media_check_async  v2 多媒体（图片）内容安全识别
   - /wxa/msg_sec_check       文本内容安全识别
 
 需要配置 WECHAT_APPID 和 WECHAT_APPSECRET 环境变量。
 """
 
 import os
-import json
 import logging
 import httpx
 
@@ -38,86 +37,83 @@ async def get_access_token() -> str:
         raise RuntimeError(f"获取 access_token 失败: {data.get('errmsg', '未知错误')}")
 
 
-async def check_image(file_path: str) -> dict:
+async def check_image(file_path: str, openid: str = "", media_url: str = "") -> dict:
     """
-    校验图片是否包含违规内容（使用 /wxa/media_check_async）
+    校验图片是否含违规内容（/wxa/media_check_async v2）
 
     Args:
-        file_path: 图片文件路径
+        file_path:  图片本地路径（备用）
+        openid:     用户 openid（需近两小时访问过小程序）
+        media_url:  图片可访问的 URL
 
     Returns:
-        {"safe": True} 或 {"safe": False, "detail": "违规说明"}
+        {"safe": True} 或 {"safe": False, "detail": "..."}
     """
-    if not os.path.isfile(file_path):
+    if not os.path.isfile(file_path) and not media_url:
         return {"safe": True}
 
     try:
         token = await get_access_token()
     except RuntimeError as e:
         logger.warning("安全校验跳过: %s", e)
-        return {"safe": True, "detail": "未配置安全校验"}
+        return {"safe": True}
+
+    # 如果没有 media_url，用我们自己的下载地址
+    if not media_url:
+        filename = os.path.basename(file_path)
+        host = os.getenv("CLOUD_HOST", "https://convertmy.kaixin8.top")
+        media_url = f"{host}/api/download/{filename}"
 
     url = f"https://api.weixin.qq.com/wxa/media_check_async?access_token={token}"
 
     try:
         async with httpx.AsyncClient(timeout=15.0, verify=False) as client:
-            with open(file_path, "rb") as f:
-                files = {"media": (os.path.basename(file_path), f, "application/octet-stream")}
-                resp = await client.post(url, files=files)
-                result = resp.json()
+            payload = {
+                "media_url": media_url,
+                "media_type": 2,        # 2=图片
+                "version": 2,
+                "scene": 1,             # 1=资料
+                "openid": openid or "unknown",
+            }
+            resp = await client.post(url, json=payload)
+            result = resp.json()
 
             errcode = result.get("errcode", -1)
-            errmsg = result.get("errmsg", "")
-
             if errcode == 0:
-                logger.info("图片已提交安全审核，trace_id: %s", result.get("trace_id", ""))
+                trace_id = result.get("trace_id", "")
+                logger.info("图片已提交安全审核: trace_id=%s, url=%s", trace_id, media_url)
                 return {"safe": True}
             else:
+                errmsg = result.get("errmsg", "")
                 logger.warning("安全审核提交失败(%d): %s", errcode, errmsg)
-                return {"safe": True, "detail": f"审核提交异常({errcode})，已放行"}
+                return {"safe": True, "detail": f"审核提交异常({errcode})"}
 
     except Exception as e:
         logger.warning("安全校验网络错误: %s", str(e))
-        return {"safe": True, "detail": "校验网络错误，已放行"}
+        return {"safe": True}
 
 
 async def check_text(text: str) -> dict:
-    """
-    校验文本是否包含违规内容（使用 /wxa/msg_sec_check）
-
-    Args:
-        text: 待校验文本
-
-    Returns:
-        {"safe": True} 或 {"safe": False, "detail": "违规说明"}
-    """
+    """校验文本是否含违规内容（/wxa/msg_sec_check）"""
     if not text.strip():
         return {"safe": True}
-
     try:
         token = await get_access_token()
     except RuntimeError as e:
-        logger.warning("文本安全校验跳过: %s", e)
+        logger.warning("文本校验跳过: %s", e)
         return {"safe": True}
-
     url = f"https://api.weixin.qq.com/wxa/msg_sec_check?access_token={token}"
-
     try:
         async with httpx.AsyncClient(timeout=10.0, verify=False) as client:
             resp = await client.post(url, json={"content": text})
             result = resp.json()
-
             errcode = result.get("errcode", -1)
-
             if errcode == 0:
                 return {"safe": True}
             elif errcode == 87014:
-                logger.warning("文本包含违规内容")
                 return {"safe": False, "detail": "内容包含违规信息"}
             else:
-                logger.warning("文本校验异常(%d): %s", errcode, result.get("errmsg", ""))
                 return {"safe": True}
-
     except Exception as e:
-        logger.warning("文本校验网络错误: %s", str(e))
+        logger.warning("文本校验错误: %s", str(e))
         return {"safe": True}
