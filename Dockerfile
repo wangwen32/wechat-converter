@@ -1,13 +1,15 @@
 FROM python:3.11-slim
 
-# 安装 LibreOffice（Word→PDF 转换）
+# 安装依赖：LibreOffice + SSL 证书
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libreoffice-writer \
         libffi-dev \
         pkg-config \
         fonts-wqy-zenhei \
+        ca-certificates \
         && \
+    update-ca-certificates --fresh && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
