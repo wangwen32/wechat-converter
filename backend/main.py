@@ -35,6 +35,7 @@ from services.img2pdf_service import images_to_pdf
 from services.barcode_service import generate_barcode
 from services.qrcode_service import generate_qrcode
 from services.watermark_service import remove_watermark
+from services.security_service import check_image
 
 # ── 日志 ──
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -457,6 +458,13 @@ async def _handle_conversion(file: UploadFile, convert_type: str, convert_fn, ou
             f.write(content)
 
         logger.info("开始转换 [%s] %s (%d bytes)", convert_type, file.filename, len(content))
+
+        # 图片类（img2pdf）需要进行内容安全校验
+        if convert_type == "img2pdf":
+            check = await check_image(input_path)
+            if not check.get("safe", True):
+                logger.warning("图片安全校验未通过: %s", file.filename)
+                raise HTTPException(400, detail="图片内容包含违规信息，请更换图片")
 
         # 执行转换
         await convert_fn(input_path, output_path)
