@@ -23,7 +23,10 @@
       "Bash(docker info *)",
       "Bash(\"C:/Program Files/Docker/Docker/Docker Desktop.exe\")",
       "Bash(wsl --status)",
-      "Bash(wsl -l -v)"
+      "Bash(wsl -l -v)",
+      "Bash(git push *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }

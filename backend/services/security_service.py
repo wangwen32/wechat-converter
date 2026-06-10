@@ -6,10 +6,20 @@
 
 import os
 import json
+import ssl
 import httpx
 import logging
+import urllib3
+
+# 禁用 SSL 警告（云托管环境证书问题）
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
+
+# 创建不验证证书的 SSL 上下文
+_ssl_ctx = ssl.create_default_context()
+_ssl_ctx.check_hostname = False
+_ssl_ctx.verify_mode = ssl.CERT_NONE
 
 # 从环境变量读取微信小程序配置
 APPID = os.getenv("WECHAT_APPID", "")
@@ -32,7 +42,7 @@ async def get_access_token() -> str:
 
     url = f"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={APPID}&secret={APPSECRET}"
 
-    async with httpx.AsyncClient(timeout=10.0) as client:
+    async with httpx.AsyncClient(timeout=10.0, verify=_ssl_ctx) as client:
         resp = await client.get(url)
         data = resp.json()
 
@@ -70,7 +80,7 @@ async def check_image(file_path: str) -> dict:
     url = f"https://api.weixin.qq.com/wxa/img_sec_check?access_token={token}"
 
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=15.0, verify=_ssl_ctx) as client:
             with open(file_path, "rb") as f:
                 files = {"media": (os.path.basename(file_path), f, "image/png")}
                 resp = await client.post(url, files=files)
