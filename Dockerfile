@@ -7,6 +7,8 @@ RUN apt-get update && \
         libffi-dev \
         pkg-config \
         fonts-wqy-zenhei \
+        fonts-wqy-microhei \
+        fonts-noto-cjk \
         ca-certificates \
         && \
     update-ca-certificates --fresh && \

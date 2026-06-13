@@ -1,0 +1,36 @@
+/* ══════════════════════════════════════════
+   配色推荐页
+   ══════════════════════════════════════════ */
+
+.container { display: flex; flex-direction: column; min-height: 100vh; }
+
+.page-header { display: flex; flex-direction: column; align-items: center; padding: 28px 0 20px; }
+.page-icon-bg {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: linear-gradient(135deg, #EC4899, #F472B6);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px; box-shadow: 0 6px 20px rgba(236, 72, 153, 0.3);
+}
+.page-icon { font-size: 30px; }
+.page-title { font-size: 22px; font-weight: 700; color: #1A2332; margin-bottom: 4px; }
+.page-desc { font-size: 13px; color: rgba(0, 0, 0, 0.35); }
+
+.color-list { display: flex; flex-direction: column; gap: 10px; }
+.color-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 8px 0; cursor: pointer;
+}
+.color-item:active { opacity: 0.7; }
+.color-block {
+  width: 48px; height: 48px; border-radius: 12px;
+  flex-shrink: 0; border: 1px solid rgba(0,0,0,0.04);
+}
+.color-hex { font-size: 16px; font-weight: 500; color: #1A2332; font-family: monospace; }
+
+.tips { margin-top: 4px; }
+.tip-item { font-size: 13px; color: rgba(0, 0, 0, 0.35); line-height: 1.9; }
+
+/* ── 夜间主题 ── */
+.theme-dark .page-title { color: #FFFFFF; }
+.theme-dark .page-desc { color: rgba(255,255,255,0.4); }
+.theme-dark .color-hex { color: #FFFFFF; }

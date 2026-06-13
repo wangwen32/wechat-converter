@@ -23,7 +23,7 @@ App({
     if (this.globalData.isDebug) {
       const fullUrl = `${CLOUD_HOST}${path}`;
       wx.request({
-        url: fullUrl, method, data,
+        url: fullUrl, method, data, timeout: 30000,
         header: { 'content-type': 'application/json', ...header },
         success(res) {
           if (res.statusCode !== 200) {
@@ -41,7 +41,7 @@ App({
       }
       wx.cloud.callContainer({
         config: { env: this.globalData.cloudEnv },
-        path, method,
+        path, method, timeout: 30000,
         header: { 'X-WX-SERVICE': this.globalData.cloudService, 'content-type': 'application/json', ...header },
         data,
         success(res) {
@@ -65,7 +65,7 @@ App({
       try { path = '/' + path.split('/').slice(3).join('/'); } catch (e) {}
     }
     const uploadTask = wx.uploadFile({
-      url: `${CLOUD_HOST}${path}`, filePath, name, formData, header,
+      url: `${CLOUD_HOST}${path}`, filePath, name, formData, header, timeout: 120000,
       success(res) {
         if (res.statusCode !== 200) {
           let detail = '';

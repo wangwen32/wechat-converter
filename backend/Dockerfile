@@ -11,6 +11,8 @@ RUN apt-get update && \
         libffi-dev \
         pkg-config \
         fonts-wqy-zenhei \
+        fonts-wqy-microhei \
+        fonts-noto-cjk \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

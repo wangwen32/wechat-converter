@@ -1,0 +1,41 @@
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <view class="page-icon-bg">
+      <text class="page-icon">🎨</text>
+    </view>
+    <text class="page-title">配色推荐</text>
+    <text class="page-desc">随机生成和谐配色方案</text>
+  </view>
+
+  <!-- 配色展示 -->
+  <view class="card">
+    <view class="section-title">今日配色</view>
+    <view class="color-list">
+      <view
+        class="color-item"
+        wx:for="{{ colorList }}"
+        wx:key="hex"
+        bindtap="onCopyColor"
+        data-hex="{{ item.hex }}"
+      >
+        <view class="color-block" style="background: {{ item.hsl }};"></view>
+        <text class="color-hex">{{ item.hex }}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="card">
+    <button class="btn-primary btn-press" bindtap="onRefresh">
+      🔄 换一组配色
+    </button>
+  </view>
+
+  <!-- 使用提示 -->
+  <view class="card tips">
+    <view class="section-title">使用说明</view>
+    <view class="tip-item">· 点击色块复制颜色代码</view>
+    <view class="tip-item">· 每次刷新生成一组新的配色</view>
+  </view>
+</view>

@@ -8,6 +8,7 @@
     "pages/qrcode/qrcode",
     "pages/remove-watermark/remove-watermark",
     "pages/more/more",
+    "pages/color-match/color-match",
     "pages/game/game",
     "pages/gomoku/gomoku"
   ],

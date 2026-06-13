@@ -117,12 +117,7 @@ Page({
    * 返回首页
    */
   onGoHome() {
-    wx.switchTab({
-      url: '/pages/index/index',
-      fail: () => {
-        wx.reLaunch({ url: '/pages/index/index' });
-      },
-    });
+    wx.reLaunch({ url: '/pages/index/index' });
   },
   onShareAppMessage() {
     return {

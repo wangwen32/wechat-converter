@@ -16,8 +16,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", os.path.join(BASE_DIR, "temp", "uploads"))
 OUTPUT_DIR = os.getenv("OUTPUT_DIR", os.path.join(BASE_DIR, "temp", "output"))
 
-# 文件过期时间（秒），默认 30 分钟后清理
-FILE_EXPIRE_SECONDS = 30 * 60
+# 文件过期时间（秒），默认 60 分钟后清理
+FILE_EXPIRE_SECONDS = 60 * 60
 
 # 清理间隔（秒）
 CLEANUP_INTERVAL_SECONDS = 15 * 60

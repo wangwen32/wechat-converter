@@ -142,7 +142,7 @@ Page({
   onShareAppMessage() {
     return {
       title: this.data.convertLabel || "文档转换",
-      path: '/pages/convert/convert?type=${this.data.convertType}',
+      path: `/pages/convert/convert?type=${this.data.convertType}`,
     };
   },
 

@@ -16,48 +16,9 @@ function getBaseUrl() {
 }
 
 /**
- * 上传文件并转换（自动适配调试/上线模式）
+ * 上传文件并转换（通过 app.uploadFileToCloud）
  */
 function uploadAndConvert(convertType, filePath, fileName, onProgress) {
-  return new Promise((resolve, reject) => {
-    wx.uploadFile({
-      url: getBaseUrl() + `/api/convert/${convertType}`,
-      filePath,
-      name: 'file',
-      formData: {},
-      success(res) {
-        if (res.statusCode !== 200) {
-          reject(new Error(`服务器错误 (${res.statusCode})`));
-          return;
-        }
-        try {
-          const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-          if (body.code !== 0) {
-            reject(new Error(body.message || '转换失败'));
-            return;
-          }
-          resolve({
-            downloadUrl: body.data.download_url,
-            filename: body.data.filename,
-            size: body.data.size,
-            downloadKey: body.data.download_key,
-          });
-        } catch (e) {
-          reject(new Error('解析响应失败: ' + e.message));
-        }
-      },
-      fail(err) {
-        reject(new Error(err.errMsg || '网络请求失败'));
-      },
-    });
-    if (onProgress) {
-      const task = wx.getFileSystemManager ? null : null;
-    }
-  });
-}
-
-// 使用 app.uploadFileToCloud（含进度回调支持）
-function uploadWithApp(convertType, filePath, fileName, onProgress) {
   return new Promise((resolve, reject) => {
     const uploadTask = getApp().uploadFileToCloud({
       url: `/api/convert/${convertType}`,
@@ -89,7 +50,7 @@ function uploadWithApp(convertType, filePath, fileName, onProgress) {
           filename: data.data.filename,
           size: data.data.size,
           downloadKey: data.data.download_key,
-          localPath: localPath, // 本地文件路径（免下载）
+          localPath: localPath,
         });
       },
       fail(err) {
@@ -101,11 +62,6 @@ function uploadWithApp(convertType, filePath, fileName, onProgress) {
       uploadTask.onProgressUpdate((res) => onProgress(res.progress));
     }
   });
-}
-
-// 统一通过 app.uploadFileToCloud 上传（自动处理 X-WX-SERVICE 头）
-function uploadAndConvertAuto(convertType, filePath, fileName, onProgress) {
-  return uploadWithApp(convertType, filePath, fileName, onProgress);
 }
 
 /**
@@ -146,7 +102,7 @@ function downloadFile(url, filename, downloadKey) {
       // 没有 downloadKey 时回退到直接下载
       const fullUrl = url.startsWith('http') ? url : `${CLOUD_HOST}${url}`;
       wx.downloadFile({
-        url: fullUrl,
+        url: fullUrl, timeout: 60000,
         success(res) {
           if (res.statusCode === 200) {
             resolve(res.tempFilePath);
@@ -272,7 +228,7 @@ function formatSize(bytes) {
 
 module.exports = {
   getBaseUrl,
-  uploadAndConvert: uploadAndConvertAuto,
+  uploadAndConvert,
   downloadFile,
   openFile,
   formatSize,

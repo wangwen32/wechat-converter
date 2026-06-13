@@ -1,6 +1,7 @@
 """img2pdf 服务：图片 → PDF 转换"""
 
 import os
+import tempfile
 import img2pdf
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
@@ -56,11 +57,16 @@ def _do_convert(input_path: str, output_path: str):
             if img.mode == "P":
                 img = img.convert("RGBA")
             background.paste(img, mask=img.split()[-1] if img.mode == "RGBA" else None)
-            rgb_path = input_path + "_rgb.png"
-            background.save(rgb_path, "PNG")
-            with open(rgb_path, "rb") as f:
-                rgb_data = f.read()
-            os.remove(rgb_path)
+            # 用 tempfile 避免临时文件残留
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                rgb_path = tmp.name
+            try:
+                background.save(rgb_path, "PNG")
+                with open(rgb_path, "rb") as f:
+                    rgb_data = f.read()
+            finally:
+                if os.path.isfile(rgb_path):
+                    os.remove(rgb_path)
             img_data = rgb_data
 
     # 使用 img2pdf 转换（忽略无效的 EXIF 旋转信息）
