@@ -134,10 +134,42 @@ async def test_baidu():
 @app.api_route("/api/convert/test-seg", methods=["GET"])
 async def test_seg():
     """测试百度AI人像分割是否可用"""
-    from services.baidu_ai_service import BAIDU_API_KEY, BAIDU_SECRET_KEY, get_access_token
+    from services.baidu_ai_service import BAIDU_API_KEY, BAIDU_SECRET_KEY
     if not BAIDU_API_KEY or not BAIDU_SECRET_KEY:
         return {"code": -1, "message": "未配置 BAIDU_API_KEY"}
     return {"code": 0, "message": "人像分割 API 已配置"}
+
+
+@app.post("/api/convert/test-seg-upload")
+async def test_seg_upload(file: UploadFile = File(...)):
+    """上传一张照片，测试百度AI人像分割并返回结果"""
+    import json
+    task_id = uuid.uuid4().hex[:12]
+    input_ext = os.path.splitext(file.filename)[1].lower()
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
+    content = await file.read()
+    with open(input_path, "wb") as f:
+        f.write(content)
+
+    from services.baidu_ai_service import segment_body
+    try:
+        seg = await segment_body(input_path)
+        fore_b64 = seg.get("foreground", "")
+        if fore_b64:
+            fore_path = os.path.join(OUTPUT_DIR, f"seg_test_{task_id}.png")
+            import base64
+            with open(fore_path, "wb") as f:
+                f.write(base64.b64decode(fore_b64))
+            return {
+                "code": 0,
+                "message": "人像分割成功",
+                "foreground_size": len(fore_b64),
+                "foreground_url": f"/api/download/seg_test_{task_id}.png",
+            }
+        else:
+            return {"code": -1, "message": "人像分割返回空"}
+    except Exception as e:
+        return {"code": -1, "message": f"人像分割失败: {str(e)}"}
 
 
 @app.post("/api/convert/analyze-pdf")
