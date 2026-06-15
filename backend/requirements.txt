@@ -9,4 +9,4 @@ Pillow==11.0.0
 qrcode[pil]==7.4.2
 python-barcode==0.15.1
 PyMuPDF==1.24.9
-# PaddleOCR 安装在 Dockerfile 中执行（构建较慢约3分钟）
+pytesseract==0.3.13

@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# 安装依赖：LibreOffice + SSL 证书 + PaddleOCR 系统库
+# 安装依赖：LibreOffice + Tesseract OCR + 中文字体
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libreoffice-writer \
@@ -10,8 +10,9 @@ RUN apt-get update && \
         fonts-wqy-microhei \
         fonts-noto-cjk \
         ca-certificates \
-        libgl1 \
-        libglib2.0-0 \
+        tesseract-ocr \
+        tesseract-ocr-chi-sim \
+        tesseract-ocr-chi-tra \
         && \
     update-ca-certificates --fresh && \
     apt-get clean && \
@@ -23,13 +24,10 @@ WORKDIR /app
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/start.sh ./
-RUN chmod +x start.sh
-
 COPY backend/ .
 
 RUN mkdir -p /app/temp/uploads /app/temp/output
 
 EXPOSE 8000
 
-CMD ["bash", "start.sh"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
