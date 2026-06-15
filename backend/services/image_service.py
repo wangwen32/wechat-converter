@@ -45,8 +45,36 @@ def _do_compress(input_path: str, output_path: str, quality: int, max_width: int
 
 async def make_id_photo(input_path: str, output_path: str,
                         bg_color: str = "#FFFFFF", size_mm: tuple = (35, 53)) -> str:
-    """证件照制作：换背景 + 裁剪为标准尺寸"""
+    """证件照制作：换背景 + 裁剪为标准尺寸
+
+    优先使用百度AI人像分割（需配置 BAIDU_API_KEY），
+    回退到简单居中放置。
+    """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    # 尝试百度AI人像分割
+    try:
+        from services.baidu_ai_service import segment_body
+        seg = await segment_body(input_path)
+        if seg.get("foreground"):
+            import base64
+            fore_bytes = base64.b64decode(seg["foreground"])
+        fore_path = input_path + "_fore.png"
+        with open(fore_path, "wb") as f:
+            f.write(fore_bytes)
+        # 用前景图做证件照
+        await asyncio.get_event_loop().run_in_executor(
+            _executor, _do_id_photo, fore_path, output_path, bg_color, size_mm,
+        )
+        if os.path.isfile(fore_path):
+            os.remove(fore_path)
+        return output_path
+    except ImportError:
+        logger.info("baidu_ai_service 未找到")
+    except Exception as e:
+        logger.warning("百度AI人像分割失败，回退到简单放置: %s", str(e)[:100])
+
+    # 回退：直接居中放置
     await asyncio.get_event_loop().run_in_executor(
         _executor, _do_id_photo, input_path, output_path, bg_color, size_mm,
     )
@@ -57,26 +85,21 @@ def _do_id_photo(input_path: str, output_path: str, bg_color: str, size_mm: tupl
     from PIL import ImageColor
 
     with Image.open(input_path) as img:
-        # 转为 RGB
         if img.mode != "RGB":
             img = img.convert("RGB")
 
-        # 将毫米转换为像素（按 300 DPI）
         dpi = 300
         target_w = int(size_mm[0] / 25.4 * dpi)
         target_h = int(size_mm[1] / 25.4 * dpi)
 
-        # 缩放使人物完整
         ratio = min(target_w / img.width, target_h / img.height) * 0.85
         new_w = int(img.width * ratio)
         new_h = int(img.height * ratio)
         img = img.resize((new_w, new_h), Image.LANCZOS)
 
-        # 创建背景
         bg_rgb = ImageColor.getrgb(bg_color)
         canvas = Image.new("RGB", (target_w, target_h), bg_rgb)
 
-        # 居中放置
         x = (target_w - new_w) // 2
         y = (target_h - new_h) // 2
         canvas.paste(img, (x, y))
