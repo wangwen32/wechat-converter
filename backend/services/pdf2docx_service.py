@@ -64,8 +64,17 @@ async def pdf_to_word(input_path: str, output_path: str) -> str:
             input_path,
             output_path,
         )
+        # 验证输出文件
+        if not os.path.isfile(output_path) or os.path.getsize(output_path) == 0:
+            raise RuntimeError("转换后文件为空，可能是 PDF 内容无法解析")
         return output_path
+    except RuntimeError as e:
+        raise e
+    except ImportError as e:
+        logger.error("pdf2docx 库导入失败: %s", str(e))
+        raise RuntimeError(f"服务器缺少 pdf2docx 依赖，请联系管理员")
     except Exception as e:
+        logger.error("PDF→Word 转换异常: %s", str(e))
         raise RuntimeError(f"PDF→Word 转换失败: {str(e)}")
 
 
