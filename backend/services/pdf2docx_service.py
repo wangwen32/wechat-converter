@@ -58,16 +58,22 @@ async def pdf_to_word(input_path: str, output_path: str) -> str:
 
     try:
         # pdf2docx 是同步库，扔到线程池跑以免阻塞事件循环
-        await asyncio.get_event_loop().run_in_executor(
-            _executor,
-            _do_convert,
-            input_path,
-            output_path,
+        # 加入 50 秒超时，避免云托管网关 504（默认 60s）
+        await asyncio.wait_for(
+            asyncio.get_event_loop().run_in_executor(
+                _executor,
+                _do_convert,
+                input_path,
+                output_path,
+            ),
+            timeout=50,
         )
         # 验证输出文件
         if not os.path.isfile(output_path) or os.path.getsize(output_path) == 0:
             raise RuntimeError("转换后文件为空，可能是 PDF 内容无法解析")
         return output_path
+    except asyncio.TimeoutError:
+        raise RuntimeError("转换超时（超过 50 秒），文件可能过大或排版过于复杂，建议缩小文件后再试")
     except RuntimeError as e:
         raise e
     except ImportError as e:

@@ -43,13 +43,18 @@ async def word_to_pdf(input_path: str, output_path: str) -> str:
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     try:
-        await asyncio.get_event_loop().run_in_executor(
-            _executor,
-            _do_convert,
-            input_path,
-            output_path,
+        await asyncio.wait_for(
+            asyncio.get_event_loop().run_in_executor(
+                _executor,
+                _do_convert,
+                input_path,
+                output_path,
+            ),
+            timeout=50,
         )
         return output_path
+    except asyncio.TimeoutError:
+        raise RuntimeError("转换超时（超过 50 秒），文件可能过大，建议缩小文件后再试")
     except Exception as e:
         raise RuntimeError(f"Word→PDF 转换失败: {str(e)}")
 

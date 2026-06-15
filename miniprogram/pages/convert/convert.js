@@ -123,7 +123,9 @@ Page({
     } catch (err) {
       const msg = err.message || '';
       let displayMsg = '转换失败，请稍后重试';
-      if (msg.includes('没有可提取的文本层') || msg.includes('扫描件')) {
+      if (msg.includes('504') || msg.includes('timeout') || msg.includes('超时') || msg.includes('Timeout')) {
+        displayMsg = '转换超时，文件可能过大或排版复杂。\n建议：缩小PDF页数后再试';
+      } else if (msg.includes('没有可提取的文本层') || msg.includes('扫描件')) {
         displayMsg = '该PDF是扫描件，没有可提取的文字。\n请使用OCR功能识别文字后导出Word。';
       } else if (msg.includes('不支持')) {
         displayMsg = msg;
