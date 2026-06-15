@@ -20,12 +20,34 @@ Page({
     this.setData({ compressing: true });
     wx.showLoading({ title: '压缩中...' });
     try {
-      const result = await api.uploadAndConvert('compress-image', this.data.imagePath, this.data.fileName, (pct) => {});
+      const result = await new Promise((resolve, reject) => {
+        getApp().uploadFileToCloud({
+          url: '/api/convert/compress-image',
+          filePath: this.data.imagePath,
+          name: 'file',
+          formData: { quality: this.data.quality },
+          success(res) {
+            try {
+              const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+              if (data.code === 0) resolve(data);
+              else reject(new Error(data.message || '压缩失败'));
+            } catch (e) {
+              reject(new Error('解析响应失败'));
+            }
+          },
+          fail(err) { reject(new Error(err.errMsg || '网络请求失败')); },
+        });
+      });
       wx.hideLoading();
+      const rd = result.data || {};
+      let localPath = '';
+      if (rd.file_base64) {
+        localPath = api.saveBase64ToFile(rd.file_base64, rd.filename || 'compressed.jpg');
+      }
       this.setData({
         compressing: false,
-        resultPath: result.localPath || this.data.imagePath,
-        resultSize: api.formatSize(result.size || 0),
+        resultPath: localPath || this.data.imagePath,
+        resultSize: api.formatSize(rd.size || 0),
       });
       wx.showToast({ title: '压缩完成', icon: 'success' });
     } catch (e) {
