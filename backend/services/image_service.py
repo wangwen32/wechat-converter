@@ -85,9 +85,6 @@ def _do_id_photo(input_path: str, output_path: str, bg_color: str, size_mm: tupl
     from PIL import ImageColor
 
     with Image.open(input_path) as img:
-        if img.mode != "RGB":
-            img = img.convert("RGB")
-
         dpi = 300
         target_w = int(size_mm[0] / 25.4 * dpi)
         target_h = int(size_mm[1] / 25.4 * dpi)
@@ -98,10 +95,15 @@ def _do_id_photo(input_path: str, output_path: str, bg_color: str, size_mm: tupl
         img = img.resize((new_w, new_h), Image.LANCZOS)
 
         bg_rgb = ImageColor.getrgb(bg_color)
-        canvas = Image.new("RGB", (target_w, target_h), bg_rgb)
+        canvas = Image.new("RGBA", (target_w, target_h), (*bg_rgb, 255))
 
         x = (target_w - new_w) // 2
         y = (target_h - new_h) // 2
-        canvas.paste(img, (x, y))
 
-        canvas.save(output_path, "JPEG", quality=95)
+        # 前景有透明通道 → 用 alpha 作为 mask 合成到背景上
+        if img.mode == "RGBA":
+            canvas.paste(img, (x, y), img)
+        else:
+            canvas.paste(img.convert("RGB"), (x, y))
+
+        canvas.convert("RGB").save(output_path, "JPEG", quality=95)
