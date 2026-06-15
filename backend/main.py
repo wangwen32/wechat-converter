@@ -166,21 +166,42 @@ async def convert_remove_watermark(file: UploadFile = File(...)):
 
 
 @app.post("/api/convert/merge-pdf")
-async def convert_merge_pdf(files: list[UploadFile] = File(...)):
-    """合并多个 PDF 文件"""
-    if not files or len(files) < 2:
-        raise HTTPException(400, detail="请至少上传 2 个 PDF 文件")
+async def convert_merge_pdf(files: list[UploadFile] = File(None), body: dict = Body(None)):
+    """合并多个 PDF 文件
 
+    支持两种方式：
+      1. multipart: 多个 file 字段（桌面端/调试）
+      2. JSON body: { files: [{ name: "a.pdf", data: "<base64>" }] }（小程序端）
+    """
     task_id = uuid.uuid4().hex[:12]
     input_paths = []
-    for f in files:
-        if not f.filename or not f.filename.lower().endswith('.pdf'):
-            raise HTTPException(400, detail=f"仅支持 PDF 文件: {f.filename}")
-        path = os.path.join(UPLOAD_DIR, f"{task_id}_{f.filename}")
-        content = await f.read()
-        with open(path, "wb") as out:
-            out.write(content)
-        input_paths.append(path)
+
+    if files:
+        # 方式 1: multipart 上传
+        if len(files) < 2:
+            raise HTTPException(400, detail="请至少上传 2 个 PDF 文件")
+        for f in files:
+            if not f.filename or not f.filename.lower().endswith('.pdf'):
+                raise HTTPException(400, detail=f"仅支持 PDF 文件: {f.filename}")
+            path = os.path.join(UPLOAD_DIR, f"{task_id}_{f.filename}")
+            content = await f.read()
+            with open(path, "wb") as out:
+                out.write(content)
+            input_paths.append(path)
+    elif body and body.get("files"):
+        # 方式 2: base64 JSON
+        file_list = body["files"]
+        if len(file_list) < 2:
+            raise HTTPException(400, detail="请至少上传 2 个 PDF 文件")
+        for f in file_list:
+            name = f.get("name", f"file_{len(input_paths)}.pdf")
+            data = f.get("data", "")
+            path = os.path.join(UPLOAD_DIR, f"{task_id}_{name}")
+            with open(path, "wb") as out:
+                out.write(base64.b64decode(data))
+            input_paths.append(path)
+    else:
+        raise HTTPException(400, detail="请上传 PDF 文件")
 
     output_filename = f"merged_{task_id}.pdf"
     output_path = os.path.join(OUTPUT_DIR, output_filename)
