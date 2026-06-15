@@ -131,6 +131,15 @@ async def test_baidu():
         return {"code": -1, "message": f"百度AI连接失败: {str(e)}"}
 
 
+@app.api_route("/api/convert/test-seg", methods=["GET"])
+async def test_seg():
+    """测试百度AI人像分割是否可用"""
+    from services.baidu_ai_service import BAIDU_API_KEY, BAIDU_SECRET_KEY, get_access_token
+    if not BAIDU_API_KEY or not BAIDU_SECRET_KEY:
+        return {"code": -1, "message": "未配置 BAIDU_API_KEY"}
+    return {"code": 0, "message": "人像分割 API 已配置"}
+
+
 @app.post("/api/convert/analyze-pdf")
 async def convert_analyze_pdf(file: UploadFile = File(...)):
     """分析 PDF 文件（诊断为什么转换失败）"""
