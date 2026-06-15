@@ -14,6 +14,8 @@ RUN apt-get update && \
         fonts-wqy-zenhei \
         fonts-wqy-microhei \
         fonts-noto-cjk \
+        libgl1-mesa-glx \
+        libglib2.0-0 \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -25,6 +27,9 @@ ENV LIBREOFFICE_PATH=/usr/bin/libreoffice
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# PaddleOCR（安装失败不影响主服务，OCR功能会提示手动安装）
+RUN pip install --default-timeout=600 --no-cache-dir paddlepaddle==2.5.2 paddleocr==2.7.3 || echo "PaddleOCR 安装跳过"
 
 # 复制源码
 COPY . .
