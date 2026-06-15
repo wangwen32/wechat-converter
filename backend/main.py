@@ -39,7 +39,7 @@ from services.security_service import check_image
 from services.pdf_service import merge_pdfs, split_pdf
 from services.ocr_service import ocr_image
 from services.image_service import compress_image, make_id_photo
-from services.photo_restore_service import restore_photo
+from services.photo_restore_service import restore_photo, colorize_photo
 
 # ── 日志 ──
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -312,6 +312,24 @@ async def convert_restore_photo(file: UploadFile = File(...)):
         raise HTTPException(500, detail=f"修复失败: {str(e)}")
 
 
+@app.post("/api/convert/colorize-photo")
+async def convert_colorize_photo(file: UploadFile = File(...)):
+    """照片上色"""
+    task_id = uuid.uuid4().hex[:12]
+    input_ext = os.path.splitext(file.filename)[1].lower()
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
+    content = await file.read()
+    with open(input_path, "wb") as f:
+        f.write(content)
+    output_filename = f"colorized_{task_id}.jpg"
+    output_path = os.path.join(OUTPUT_DIR, output_filename)
+    try:
+        await colorize_photo(input_path, output_path)
+        return _file_response(output_filename, output_path)
+    except Exception as e:
+        raise HTTPException(500, detail=f"上色失败: {str(e)}")
+
+
 def _file_response(filename: str, filepath: str) -> dict:
     """统一文件响应格式"""
     with open(filepath, "rb") as f:
@@ -351,6 +369,7 @@ async def convert_upload_binary(endpoint: str, request: Request):
         "compress-image": (ALLOWED_EXTENSIONS["compress_image"], compress_image, ".jpg"),
         "id-photo": (ALLOWED_EXTENSIONS["id_photo"], make_id_photo, ".jpg"),
         "restore-photo": (ALLOWED_EXTENSIONS["restore_photo"], restore_photo, ".jpg"),
+        "colorize-photo": (ALLOWED_EXTENSIONS["restore_photo"], colorize_photo, ".jpg"),
     }
 
     if endpoint not in convert_map:
@@ -439,6 +458,7 @@ async def convert_upload_json(body: dict = Body(...)):
         "compress-image": (ALLOWED_EXTENSIONS["compress_image"], compress_image, ".jpg"),
         "id-photo": (ALLOWED_EXTENSIONS["id_photo"], make_id_photo, ".jpg"),
         "restore-photo": (ALLOWED_EXTENSIONS["restore_photo"], restore_photo, ".jpg"),
+        "colorize-photo": (ALLOWED_EXTENSIONS["restore_photo"], colorize_photo, ".jpg"),
     }
 
     if endpoint not in convert_map:

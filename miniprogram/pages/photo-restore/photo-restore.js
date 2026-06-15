@@ -16,7 +16,7 @@ Page({
   async onProcess() {
     this.setData({ processing: true });
     wx.showLoading({ title: '处理中...' });
-    const endpoint = this.data.mode === 'restore' ? 'restore-photo' : 'restore-photo';
+    const endpoint = this.data.mode === 'restore' ? 'restore-photo' : 'colorize-photo';
     try {
       const result = await api.uploadAndConvert(endpoint, this.data.imagePath, 'photo.jpg');
       wx.hideLoading();
