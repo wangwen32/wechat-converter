@@ -131,6 +131,64 @@ async def test_baidu():
         return {"code": -1, "message": f"百度AI连接失败: {str(e)}"}
 
 
+@app.post("/api/convert/analyze-pdf")
+async def convert_analyze_pdf(file: UploadFile = File(...)):
+    """分析 PDF 文件（诊断为什么转换失败）"""
+    import fitz
+
+    task_id = uuid.uuid4().hex[:12]
+    input_ext = os.path.splitext(file.filename)[1].lower()
+    if input_ext != ".pdf":
+        raise HTTPException(400, detail="仅支持 PDF 文件")
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
+    content = await file.read()
+    with open(input_path, "wb") as f:
+        f.write(content)
+
+    doc = fitz.open(input_path)
+    pages = doc.page_count
+    total_chars = 0
+    total_images = 0
+    page_details = []
+    for i in range(pages):
+        page = doc[i]
+        text = page.get_text("text")
+        clean = "".join(text.split())
+        images = page.get_images()
+        total_chars += len(clean)
+        total_images += len(images)
+        page_details.append({
+            "page": i + 1,
+            "text_chars": len(clean),
+            "images": len(images),
+        })
+    doc.close()
+
+    avg_chars = total_chars / pages if pages > 0 else 0
+    likely_scanned = avg_chars < 10 and total_images > 0
+
+    result = {
+        "filename": file.filename,
+        "file_size": f"{len(content) / 1024:.1f} KB",
+        "pages": pages,
+        "total_text_chars": total_chars,
+        "avg_chars_per_page": round(avg_chars, 1),
+        "total_images": total_images,
+        "likely_scanned": likely_scanned,
+        "verdict": "",
+        "page_details": page_details[:5],
+    }
+
+    if likely_scanned:
+        result["verdict"] = "该 PDF 是扫描件（图片型），没有可提取的文字层。请使用 OCR 功能。"
+    elif avg_chars < 20:
+        result["verdict"] = f"文字极少（每页仅 {avg_chars:.0f} 字符），转换后可能为空文件。"
+    else:
+        result["verdict"] = f"有文本层（每页 {avg_chars:.0f} 字符），可正常转换。"
+
+    return {"code": 0, "data": result}
+
+
 @app.post("/api/convert/word2pdf")
 async def convert_word_to_pdf(file: UploadFile = File(...)):
     """Word → PDF 转换"""
