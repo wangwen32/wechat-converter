@@ -11,3 +11,6 @@
 .result-card { }
 .result-content { font-size: 28rpx; line-height: 1.8; color: var(--text-primary); white-space: pre-wrap; word-break: break-all; }
 .copy-btn { display: inline-block; padding: 12rpx 24rpx; background: var(--color-primary-bg); color: var(--color-primary); border-radius: var(--radius-sm); font-size: 24rpx; margin-top: 16rpx; }
+.confidence-row { display: flex; justify-content: space-between; padding: 12rpx 0; margin-bottom: 12rpx; border-bottom: 1rpx solid var(--border-light); }
+.confidence-label { font-size: 24rpx; color: var(--text-secondary); }
+.confidence-value { font-size: 24rpx; color: var(--color-success); font-weight: 600; }

@@ -401,6 +401,9 @@ async def convert_upload_json(body: dict = Body(...)):
         "pdf2word": (ALLOWED_EXTENSIONS["pdf2word"], pdf_to_word, ".docx"),
         "img2pdf": (ALLOWED_EXTENSIONS["img2pdf"], images_to_pdf, ".pdf"),
         "remove-watermark": (ALLOWED_EXTENSIONS["remove_watermark"], remove_watermark, "_cleaned.pdf"),
+        "compress-image": (ALLOWED_EXTENSIONS["compress_image"], compress_image, ".jpg"),
+        "id-photo": (ALLOWED_EXTENSIONS["id_photo"], make_id_photo, ".jpg"),
+        "restore-photo": (ALLOWED_EXTENSIONS["restore_photo"], restore_photo, ".jpg"),
     }
 
     if endpoint not in convert_map:

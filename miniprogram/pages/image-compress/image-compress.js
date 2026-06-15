@@ -2,6 +2,7 @@
 const api = require('../../utils/api');
 Page({
   data: { selected: false, imagePath: '', fileName: '', fileSize: '', quality: 70, compressing: false, resultPath: '', resultSize: '' },
+
   onChooseImage() {
     wx.chooseImage({ count: 1, sizeType: ['original'], sourceType: ['album'],
       success: (res) => {
@@ -10,15 +11,35 @@ Page({
       },
     });
   },
+
   onClearImage() { this.setData({ selected: false, imagePath: '', resultPath: '', resultSize: '' }); },
+
   onQualityChange(e) { this.setData({ quality: e.detail.value }); },
+
   async onCompress() {
     this.setData({ compressing: true });
-    wx.showToast({ title: '压缩中...', icon: 'loading' });
-    setTimeout(() => {
-      this.setData({ compressing: false, resultPath: this.data.imagePath, resultSize: '已压缩' });
+    wx.showLoading({ title: '压缩中...' });
+    try {
+      const result = await api.uploadAndConvert('compress-image', this.data.imagePath, this.data.fileName, (pct) => {});
+      wx.hideLoading();
+      this.setData({
+        compressing: false,
+        resultPath: result.localPath || this.data.imagePath,
+        resultSize: api.formatSize(result.size || 0),
+      });
       wx.showToast({ title: '压缩完成', icon: 'success' });
-    }, 1500);
+    } catch (e) {
+      wx.hideLoading();
+      this.setData({ compressing: false });
+      wx.showToast({ title: e.message || '压缩失败', icon: 'none' });
+    }
   },
-  onSave() { wx.showToast({ title: '已保存到相册', icon: 'none' }); },
+
+  onSave() {
+    wx.saveImageToPhotosAlbum({
+      filePath: this.data.resultPath,
+      success: () => wx.showToast({ title: '已保存', icon: 'success' }),
+      fail: () => wx.showToast({ title: '保存失败', icon: 'none' }),
+    });
+  },
 });
