@@ -28,9 +28,29 @@ Page({
     this.setData({ processing: true });
     wx.showLoading({ title: '制作中...' });
     try {
-      const result = await api.uploadAndConvert('id-photo', this.data.imagePath, 'photo.jpg');
+      const result = await new Promise((resolve, reject) => {
+        getApp().uploadFileToCloud({
+          url: '/api/convert/id-photo',
+          filePath: this.data.imagePath,
+          name: 'file',
+          formData: { bg_color: this.data.bgColor },
+          success(res) {
+            try {
+              const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+              if (data.code === 0) resolve(data);
+              else reject(new Error(data.message || '制作失败'));
+            } catch (e) { reject(new Error('解析响应失败')); }
+          },
+          fail(err) { reject(new Error(err.errMsg || '网络请求失败')); },
+        });
+      });
       wx.hideLoading();
-      this.setData({ processing: false, resultPath: result.localPath || this.data.imagePath });
+      const rd = result.data || {};
+      let localPath = '';
+      if (rd.file_base64) {
+        localPath = api.saveBase64ToFile(rd.file_base64, rd.filename || 'idphoto.jpg');
+      }
+      this.setData({ processing: false, resultPath: localPath || this.data.imagePath });
       wx.showToast({ title: '制作完成', icon: 'success' });
     } catch (e) {
       wx.hideLoading();
