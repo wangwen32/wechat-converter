@@ -1,6 +1,5 @@
 // pages/pdf-tools/pdf-tools.js — 合并/拆分 PDF
 const api = require('../../utils/api');
-const CLOUD_HOST = 'https://convertmy.kaixin8.top';
 
 Page({
   data: {
@@ -59,15 +58,12 @@ Page({
         fileBases.push({ name: f.name, data: base64 });
       }
 
-      const app = getApp();
-      const baseUrl = app.globalData.isDebug ? CLOUD_HOST : '';
-
+      // 使用 app.callApi（自动处理 debug/云托管两种模式）
       const result = await new Promise((resolve, reject) => {
-        wx.request({
-          url: baseUrl + '/api/convert/merge-pdf',
+        getApp().callApi({
+          url: '/api/convert/merge-pdf',
           method: 'POST',
           data: { files: fileBases },
-          timeout: 120000,
           success: (res) => {
             if (res.data && res.data.code === 0) resolve(res.data);
             else reject(new Error((res.data && res.data.detail) || '合并失败'));
@@ -79,9 +75,19 @@ Page({
       wx.hideLoading();
       this.setData({ merging: false });
 
-      // 跳转到结果页
+      // 保存 base64 到本地临时文件
+      let localPath = '';
+      const rd = result.data || {};
+      if (rd.file_base64) {
+        const fs = wx.getFileSystemManager();
+        const tempDir = `${wx.env.USER_DATA_PATH}/downloads`;
+        try { fs.mkdirSync(tempDir); } catch (e) {}
+        localPath = `${tempDir}/${rd.download_key || 'merged.pdf'}`;
+        fs.writeFileSync(localPath, wx.base64ToArrayBuffer(rd.file_base64));
+      }
+
       wx.redirectTo({
-        url: `/pages/result/result?downloadUrl=${encodeURIComponent(result.data.download_url)}&filename=${encodeURIComponent(result.data.filename)}&size=${result.data.size}&convertType=merge-pdf&downloadKey=${encodeURIComponent(result.data.download_key || '')}&localPath=${encodeURIComponent(result.data.file_base64 || '')}`,
+        url: `/pages/result/result?downloadUrl=${encodeURIComponent(rd.download_url || '')}&filename=${encodeURIComponent(rd.filename || 'merged.pdf')}&size=${rd.size || 0}&convertType=merge-pdf&downloadKey=${encodeURIComponent(rd.download_key || '')}&localPath=${encodeURIComponent(localPath)}`,
       });
     } catch (e) {
       wx.hideLoading();
@@ -132,37 +138,47 @@ Page({
     wx.showLoading({ title: '拆分中...' });
 
     try {
-      const app = getApp();
-      const baseUrl = app.globalData.isDebug ? CLOUD_HOST : '';
-
+      // 使用 app.uploadFileToCloud（自动处理调试/上线模式）
       const result = await new Promise((resolve, reject) => {
-        wx.uploadFile({
-          url: baseUrl + '/api/convert/split-pdf',
+        getApp().uploadFileToCloud({
+          url: '/api/convert/split-pdf',
           filePath: this.data.filePath,
           name: 'file',
           formData: {
             mode: this.data.splitMode,
             page_ranges: this.data.splitPageRange,
           },
-          timeout: 120000,
-          success: (res) => {
+          success(res) {
             try {
-              const data = JSON.parse(res.data);
+              const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
               if (data.code === 0) resolve(data);
               else reject(new Error(data.detail || '拆分失败'));
             } catch (e) {
               reject(new Error('解析响应失败'));
             }
           },
-          fail: (err) => reject(new Error(err.errMsg || '网络请求失败')),
+          fail(err) {
+            reject(new Error(err.errMsg || '网络请求失败'));
+          },
         });
       });
 
       wx.hideLoading();
       this.setData({ splitting: false });
 
+      // 保存 base64 到本地临时文件
+      let localPath = '';
+      const rd = result.data || {};
+      if (rd.file_base64) {
+        const fs = wx.getFileSystemManager();
+        const tempDir = `${wx.env.USER_DATA_PATH}/downloads`;
+        try { fs.mkdirSync(tempDir); } catch (e) {}
+        localPath = `${tempDir}/${rd.download_key || 'split.pdf'}`;
+        fs.writeFileSync(localPath, wx.base64ToArrayBuffer(rd.file_base64));
+      }
+
       wx.redirectTo({
-        url: `/pages/result/result?downloadUrl=${encodeURIComponent(result.data.download_url)}&filename=${encodeURIComponent(result.data.filename)}&size=${result.data.size}&convertType=split-pdf&downloadKey=${encodeURIComponent(result.data.download_key || '')}&localPath=${encodeURIComponent(result.data.file_base64 || '')}`,
+        url: `/pages/result/result?downloadUrl=${encodeURIComponent(rd.download_url || '')}&filename=${encodeURIComponent(rd.filename || 'split.pdf')}&size=${rd.size || 0}&convertType=split-pdf&downloadKey=${encodeURIComponent(rd.download_key || '')}&localPath=${encodeURIComponent(localPath)}`,
       });
     } catch (e) {
       wx.hideLoading();
