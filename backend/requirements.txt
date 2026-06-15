@@ -9,5 +9,6 @@ Pillow==11.0.0
 qrcode[pil]==7.4.2
 python-barcode==0.15.1
 PyMuPDF==1.24.9
-paddlepaddle==2.6.1
-paddleocr==2.8.1
+# PaddleOCR（OCR 文字识别用，按需安装）
+# paddlepaddle==2.6.1
+# paddleocr==2.8.1

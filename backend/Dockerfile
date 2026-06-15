@@ -14,8 +14,6 @@ RUN apt-get update && \
         fonts-wqy-zenhei \
         fonts-wqy-microhei \
         fonts-noto-cjk \
-        libgl1-mesa-glx \
-        libglib2.0-0 \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
