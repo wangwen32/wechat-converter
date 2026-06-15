@@ -1,0 +1,31 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">进制转换</view>
+    <input class="input" type="text" value="{{ inputVal }}" bindinput="onInput" placeholder="输入数字" />
+    <view class="picker-row">
+      <picker mode="selector" range="{{ baseNames }}" value="{{ bases.indexOf(fromBase) }}" bindchange="onFromChange">
+        <view class="picker-box"><text>从 {{ baseNames[bases.indexOf(fromBase)] }}</text><text>▼</text></view>
+      </picker>
+      <text class="arrow">→</text>
+      <picker mode="selector" range="{{ baseNames }}" value="{{ bases.indexOf(toBase) }}" bindchange="onToChange">
+        <view class="picker-box"><text>到 {{ baseNames[bases.indexOf(toBase)] }}</text><text>▼</text></view>
+      </picker>
+    </view>
+    <view class="result-box" bindtap="onCopy">
+      <text class="result-text">{{ result || '等待输入' }}</text>
+      <text class="copy-hint">点击复制结果</text>
+    </view>
+  </view>
+  <view class="card">
+    <view class="section-title">常用对照表</view>
+    <view class="table">
+      <view class="tr"><text class="td h">十进制</text><text class="td h">二进制</text><text class="td h">八进制</text><text class="td h">十六进制</text></view>
+      <view class="tr" wx:for="{{ [0,1,2,3,4,5,6,7,8,9,10,15,16,255] }}" wx:key="*this">
+        <text class="td">{{ item }}</text>
+        <text class="td">{{ item.toString(2) }}</text>
+        <text class="td">{{ item.toString(8) }}</text>
+        <text class="td">{{ item.toString(16).toUpperCase() }}</text>
+      </view>
+    </view>
+  </view>
+</view>

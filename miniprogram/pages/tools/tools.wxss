@@ -1,0 +1,79 @@
+/* ══════════════════════════════════════════
+   工具列表页 — 分类导航
+   ══════════════════════════════════════════ */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 32rpx 0 16rpx;
+}
+.page-header-icon {
+  font-size: 44rpx;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #1677FF, #4096FF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 12rpx rgba(22, 119, 255, 0.25);
+}
+.page-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.page-header-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.page-header-desc {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+/* ── 双列网格 ── */
+.tool-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24rpx 20rpx;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 130rpx;
+}
+.tool-card-hover {
+  transform: scale(0.96);
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4rpx;
+}
+.tool-card-desc {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+}
+
+/* ── 分区标题 ── */
+.section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3rpx;
+}

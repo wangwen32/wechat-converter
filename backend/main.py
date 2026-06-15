@@ -36,6 +36,10 @@ from services.barcode_service import generate_barcode
 from services.qrcode_service import generate_qrcode
 from services.watermark_service import remove_watermark
 from services.security_service import check_image
+from services.pdf_service import merge_pdfs, split_pdf
+from services.ocr_service import ocr_image
+from services.image_service import compress_image, make_id_photo
+from services.photo_restore_service import restore_photo
 
 # ── 日志 ──
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -154,6 +158,143 @@ async def convert_remove_watermark(file: UploadFile = File(...)):
         raise HTTPException(400, detail=f"不支持的文件格式，仅支持: {', '.join(ALLOWED_EXTENSIONS['remove_watermark'])}")
 
     return await _handle_conversion(file, "remove_watermark", remove_watermark, "_cleaned.pdf")
+
+
+# ══════════════════════════════════════════
+# 新增 API 路由
+# ══════════════════════════════════════════
+
+
+@app.post("/api/convert/merge-pdf")
+async def convert_merge_pdf(files: list[UploadFile] = File(...)):
+    """合并多个 PDF 文件"""
+    if not files or len(files) < 2:
+        raise HTTPException(400, detail="请至少上传 2 个 PDF 文件")
+
+    task_id = uuid.uuid4().hex[:12]
+    input_paths = []
+    for f in files:
+        if not f.filename or not f.filename.lower().endswith('.pdf'):
+            raise HTTPException(400, detail=f"仅支持 PDF 文件: {f.filename}")
+        path = os.path.join(UPLOAD_DIR, f"{task_id}_{f.filename}")
+        content = await f.read()
+        with open(path, "wb") as out:
+            out.write(content)
+        input_paths.append(path)
+
+    output_filename = f"merged_{task_id}.pdf"
+    output_path = os.path.join(OUTPUT_DIR, output_filename)
+    try:
+        await merge_pdfs(input_paths, output_path)
+        return _file_response(output_filename, output_path)
+    except Exception as e:
+        raise HTTPException(500, detail=f"合并失败: {str(e)}")
+
+
+@app.post("/api/convert/split-pdf")
+async def convert_split_pdf(file: UploadFile = File(...), mode: str = Form("all"), page_ranges: str = Form("")):
+    """拆分 PDF 文件"""
+    task_id = uuid.uuid4().hex[:12]
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}.pdf")
+    content = await file.read()
+    with open(input_path, "wb") as f:
+        f.write(content)
+
+    output_dir = os.path.join(OUTPUT_DIR, f"split_{task_id}")
+    try:
+        files = await split_pdf(input_path, output_dir, mode, page_ranges)
+        if files:
+            return _file_response(os.path.basename(files[0]), files[0])
+        raise HTTPException(400, detail="拆分失败")
+    except Exception as e:
+        raise HTTPException(500, detail=f"拆分失败: {str(e)}")
+
+
+@app.post("/api/convert/ocr")
+async def convert_ocr(file: UploadFile = File(...)):
+    """图片/PDF 文字识别"""
+    task_id = uuid.uuid4().hex[:12]
+    input_ext = os.path.splitext(file.filename)[1].lower()
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
+    content = await file.read()
+    with open(input_path, "wb") as f:
+        f.write(content)
+    try:
+        result = await ocr_image(input_path)
+        return {"code": 0, "message": "识别成功", "data": result}
+    except Exception as e:
+        raise HTTPException(500, detail=f"识别失败: {str(e)}")
+
+
+@app.post("/api/convert/compress-image")
+async def convert_compress_image(file: UploadFile = File(...), quality: int = Form(70)):
+    """压缩图片"""
+    task_id = uuid.uuid4().hex[:12]
+    input_ext = os.path.splitext(file.filename)[1].lower()
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
+    content = await file.read()
+    with open(input_path, "wb") as f:
+        f.write(content)
+    output_filename = f"compressed_{task_id}{input_ext}"
+    output_path = os.path.join(OUTPUT_DIR, output_filename)
+    try:
+        await compress_image(input_path, output_path, quality=quality)
+        return _file_response(output_filename, output_path)
+    except Exception as e:
+        raise HTTPException(500, detail=f"压缩失败: {str(e)}")
+
+
+@app.post("/api/convert/id-photo")
+async def convert_id_photo(file: UploadFile = File(...), bg_color: str = Form("#FFFFFF")):
+    """证件照制作"""
+    task_id = uuid.uuid4().hex[:12]
+    input_ext = os.path.splitext(file.filename)[1].lower()
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
+    content = await file.read()
+    with open(input_path, "wb") as f:
+        f.write(content)
+    output_filename = f"idphoto_{task_id}.jpg"
+    output_path = os.path.join(OUTPUT_DIR, output_filename)
+    try:
+        await make_id_photo(input_path, output_path, bg_color=bg_color)
+        return _file_response(output_filename, output_path)
+    except Exception as e:
+        raise HTTPException(500, detail=f"制作失败: {str(e)}")
+
+
+@app.post("/api/convert/restore-photo")
+async def convert_restore_photo(file: UploadFile = File(...)):
+    """老照片修复"""
+    task_id = uuid.uuid4().hex[:12]
+    input_ext = os.path.splitext(file.filename)[1].lower()
+    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
+    content = await file.read()
+    with open(input_path, "wb") as f:
+        f.write(content)
+    output_filename = f"restored_{task_id}.jpg"
+    output_path = os.path.join(OUTPUT_DIR, output_filename)
+    try:
+        await restore_photo(input_path, output_path)
+        return _file_response(output_filename, output_path)
+    except Exception as e:
+        raise HTTPException(500, detail=f"修复失败: {str(e)}")
+
+
+def _file_response(filename: str, filepath: str) -> dict:
+    """统一文件响应格式"""
+    with open(filepath, "rb") as f:
+        file_base64 = base64.b64encode(f.read()).decode("utf-8")
+    return {
+        "code": 0,
+        "message": "处理成功",
+        "data": {
+            "download_url": f"/api/download/{filename}",
+            "filename": filename,
+            "size": os.path.getsize(filepath),
+            "download_key": filename,
+            "file_base64": file_base64,
+        },
+    }
 
 
 @app.post("/api/convert/upload-binary/{endpoint}")

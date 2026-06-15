@@ -1,0 +1,70 @@
+<!-- pages/profile/profile.wxml -->
+<view class="page">
+
+  <!-- 用户信息卡片 -->
+  <view class="profile-card">
+    <view class="profile-avatar">
+      <text class="profile-avatar-text">📄</text>
+    </view>
+    <view class="profile-info">
+      <text class="profile-name">文档转换大师</text>
+      <text class="profile-version">版本 4.0.0</text>
+    </view>
+  </view>
+
+  <!-- 设置列表 -->
+  <view class="settings-card">
+    <!-- 清除缓存 -->
+    <view class="setting-item" bindtap="onClearCache">
+      <view class="setting-left">
+        <view class="setting-icon-wrap" style="background: rgba(239,68,68,0.10);">
+          <text class="setting-icon" style="color: #EF4444;">🗑</text>
+        </view>
+        <text class="setting-label">清除缓存</text>
+      </view>
+      <view class="setting-right">
+        <text class="setting-value">{{ cacheSize }}</text>
+        <text class="setting-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="setting-divider"></view>
+
+    <!-- 联系开发者 -->
+    <view class="setting-item" bindtap="onContact">
+      <view class="setting-left">
+        <view class="setting-icon-wrap" style="background: rgba(22,119,255,0.10);">
+          <text class="setting-icon" style="color: #1677FF;">✉</text>
+        </view>
+        <view class="setting-info">
+          <text class="setting-label">联系开发者</text>
+          <text class="setting-desc">微信号：19571845180</text>
+        </view>
+      </view>
+      <view class="setting-right">
+        <text class="setting-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="setting-divider"></view>
+
+    <!-- 分享 -->
+    <button class="setting-item share-btn" open-type="share">
+      <view class="setting-left">
+        <view class="setting-icon-wrap" style="background: rgba(139,92,246,0.10);">
+          <text class="setting-icon" style="color: #8B5CF6;">📤</text>
+        </view>
+        <text class="setting-label">分享给好友</text>
+      </view>
+      <view class="setting-right">
+        <text class="setting-arrow">›</text>
+      </view>
+    </button>
+  </view>
+
+  <!-- 底部 -->
+  <view class="profile-footer">
+    <text class="profile-footer-text">文档转换大师 · 免费文档工具箱</text>
+    <text class="profile-footer-text" style="margin-top: 4rpx;">Made with ❤️</text>
+  </view>
+</view>

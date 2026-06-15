@@ -1,0 +1,49 @@
+<!-- pages/records/records.wxml -->
+<view class="page">
+  <view class="page-header">
+    <text class="page-header-title">转换记录</text>
+    <text class="page-header-desc" wx:if="{{ showClear }}">最多保留最近 20 条记录</text>
+  </view>
+
+  <!-- 列表 -->
+  <view wx:if="{{ records.length > 0 }}" class="record-list">
+    <view
+      class="record-item"
+      wx:for="{{ records }}"
+      wx:key="time"
+      bindtap="onRecordTap"
+      data-file="{{ item }}"
+    >
+      <view class="record-icon-wrap">
+        <text wx:if="{{ item.convertType === 'pdf2word' }}" class="record-icon">📄</text>
+        <text wx:elif="{{ item.convertType === 'word2pdf' }}" class="record-icon">📝</text>
+        <text wx:elif="{{ item.convertType === 'img2pdf' }}" class="record-icon">🖼</text>
+        <text wx:elif="{{ item.convertType === 'remove-watermark' }}" class="record-icon">🧹</text>
+        <text wx:else class="record-icon">📄</text>
+      </view>
+      <view class="record-info">
+        <text class="record-name text-ellipsis">{{ item.filename }}</text>
+        <view class="record-meta-row">
+          <text class="record-time">{{ item.timeDisplay }}</text>
+          <text wx:if="{{ item.sizeDisplay }}" class="record-divider">·</text>
+          <text wx:if="{{ item.sizeDisplay }}" class="record-size">{{ item.sizeDisplay }}</text>
+          <text class="record-divider">·</text>
+          <text class="record-type">{{ item.convertType }}</text>
+        </view>
+      </view>
+      <view class="record-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{ records.length === 0 }}" class="records-empty">
+    <text class="records-empty-icon">📂</text>
+    <text class="records-empty-text">暂无转换记录</text>
+    <text class="records-empty-hint">转换文件后自动记录在这里</text>
+  </view>
+
+  <!-- 清空按钮 -->
+  <view wx:if="{{ showClear }}" class="clear-bar">
+    <text class="clear-btn" bindtap="onClearAll">清空所有记录</text>
+  </view>
+</view>

@@ -1,0 +1,16 @@
+/* pages/pdf-tools/pdf-tools.wxss */
+.tab-bar { display: flex; background: var(--bg-card); border-radius: var(--radius-lg); padding: 6rpx; margin-top: 20rpx; }
+.tab-item { flex: 1; text-align: center; padding: 16rpx 0; border-radius: var(--radius-md); font-size: 28rpx; color: var(--text-secondary); }
+.tab-item.active { background: var(--color-primary); color: #fff; font-weight: 600; }
+.upload-area { display: flex; flex-direction: column; align-items: center; padding: 40rpx; border: 2rpx dashed var(--border-medium); border-radius: var(--radius-lg); margin-top: 16rpx; cursor: pointer; }
+.upload-icon { font-size: 48rpx; margin-bottom: 12rpx; }
+.upload-text { font-size: 28rpx; color: var(--text-primary); }
+.upload-hint { font-size: 22rpx; color: var(--text-tertiary); margin-top: 8rpx; }
+.file-list { margin-top: 16rpx; }
+.file-item { display: flex; align-items: center; justify-content: space-between; padding: 16rpx; background: var(--bg-hover); border-radius: var(--radius-sm); margin-bottom: 8rpx; }
+.file-name { font-size: 24rpx; color: var(--text-primary); flex: 1; }
+.file-remove { font-size: 24rpx; color: var(--color-error); padding: 8rpx; cursor: pointer; }
+.file-info { display: flex; align-items: center; gap: 16rpx; margin-top: 16rpx; padding: 16rpx; background: var(--bg-hover); border-radius: var(--radius-sm); }
+.file-clear { color: var(--color-error); font-size: 28rpx; cursor: pointer; }
+.text-input { width: 100%; height: 72rpx; border: 1rpx solid var(--border-medium); border-radius: var(--radius-sm); padding: 0 16rpx; font-size: 26rpx; box-sizing: border-box; }
+.picker-box { display: flex; align-items: center; justify-content: space-between; height: 72rpx; border: 1rpx solid var(--border-medium); border-radius: var(--radius-sm); padding: 0 16rpx; font-size: 26rpx; }

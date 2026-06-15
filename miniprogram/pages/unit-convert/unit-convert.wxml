@@ -1,0 +1,19 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">单位换算</view>
+    <picker mode="selector" range="{{ categories }}" value="{{ catIndex }}" bindchange="onCatChange">
+      <view class="picker-box"><text>{{ CONVERSIONS[categories[catIndex]].name }}</text><text>▼</text></view>
+    </picker>
+  </view>
+  <view class="card convert-card">
+    <input class="convert-input" type="digit" value="{{ inputVal }}" bindinput="onInput" />
+    <picker mode="selector" range="{{ CONVERSIONS[categories[catIndex]].units }}" value="{{ fromIdx }}" bindchange="onFromChange">
+      <view class="unit-box"><text>{{ CONVERSIONS[categories[catIndex]].units[fromIdx] }}</text><text>▼</text></view>
+    </picker>
+    <text class="equal-sign">=</text>
+    <text class="convert-result">{{ resultVal }}</text>
+    <picker mode="selector" range="{{ CONVERSIONS[categories[catIndex]].units }}" value="{{ toIdx }}" bindchange="onToChange">
+      <view class="unit-box"><text>{{ CONVERSIONS[categories[catIndex]].units[toIdx] }}</text><text>▼</text></view>
+    </picker>
+  </view>
+</view>

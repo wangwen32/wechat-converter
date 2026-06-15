@@ -1,136 +1,161 @@
-<!-- pages/index/index.wxml -->
-<view class="container">
-  <!-- 头部 -->
-  <view class="header animate-header">
-    <view class="header-top">
-      <view class="logo-wrapper animate-logo">
-        <text class="logo-icon">📄</text>
-        <view class="logo-glow"></view>
-      </view>
-    </view>
-    <text class="title animate-title">文档格式转换</text>
-    <text class="subtitle animate-subtitle">PDF ↔ Word 双向转换 · 快速高效</text>
-  </view>
+<!-- pages/index/index.wxml — 首页：文档转换大师 -->
+<view class="page" style="padding-top: {{ statusBarHeight + 24 }}px;">
 
-  <!-- 功能入口卡片 -->
-  <view class="card-list">
-    <view class="func-card animate-card card-1" bindtap="onPdfToWord">
-      <view class="func-icon pdf-bg">
-        <text class="icon-text">📄</text>
-      </view>
-      <view class="func-info">
-        <text class="func-title">PDF → Word</text>
-        <text class="func-desc">PDF转换为WORD，请耐心等待吧</text>
-        <view class="func-tag">推荐</view>
-      </view>
-      <view class="arrow-circle">
-        <text class="arrow">→</text>
-      </view>
-    </view>
+  <!-- ═══ 状态栏：显示时间（可选） ═══ -->
+  <view class="status-bar" style="height: {{ statusBarHeight }}px; top: 0;"></view>
 
-    <view class="func-card animate-card card-2" bindtap="onWordToPdf">
-      <view class="func-icon word-bg">
-        <text class="icon-text">📝</text>
-      </view>
-      <view class="func-info">
-        <text class="func-title">Word → PDF</text>
-        <text class="func-desc">将 Word 文档转换为 PDF 格式</text>
-      </view>
-      <view class="arrow-circle">
-        <text class="arrow">→</text>
-      </view>
+  <!-- ═══ 第一屏：Banner ═══ -->
+  <view class="banner">
+    <view class="banner-bg">
+      <view class="banner-glow banner-glow-1"></view>
+      <view class="banner-glow banner-glow-2"></view>
     </view>
-
-    <view class="func-card animate-card card-3" bindtap="onImgToPdf">
-      <view class="func-icon img-bg">
-        <text class="icon-text">🖼️</text>
+    <view class="banner-content">
+      <view class="banner-title-row">
+        <text class="banner-brand">文档转换</text>
+        <text class="banner-brand-accent">大师</text>
       </view>
-      <view class="func-info">
-        <text class="func-title">图片 → PDF</text>
-        <text class="func-desc">将 JPG/PNG 图片转换为 PDF 文档</text>
+      <view class="banner-tags">
+        <view class="banner-tag">免费</view>
+        <view class="banner-tag">快速</view>
+        <view class="banner-tag">无广告</view>
       </view>
-      <view class="arrow-circle">
-        <text class="arrow">→</text>
-      </view>
-    </view>
-
-    <view class="func-card animate-card card-4" bindtap="onBarcode">
-      <view class="func-icon barcode-bg">
-        <text class="icon-text">〰️</text>
-      </view>
-      <view class="func-info">
-        <text class="func-title">条形码生成</text>
-        <text class="func-desc">生成 Code128 / EAN-13 等多种条形码</text>
-      </view>
-      <view class="arrow-circle">
-        <text class="arrow">→</text>
-      </view>
-    </view>
-
-    <view class="func-card animate-card card-5" bindtap="onQRCode">
-      <view class="func-icon qrcode-bg">
-        <text class="icon-text">📱</text>
-      </view>
-      <view class="func-info">
-        <text class="func-title">二维码生成</text>
-        <text class="func-desc">将文本或链接生成二维码图片</text>
-      </view>
-      <view class="arrow-circle">
-        <text class="arrow">→</text>
-      </view>
-    </view>
-
-    <view class="func-card animate-card card-6" bindtap="onRemoveWatermark">
-      <view class="func-icon watermark-bg">
-        <text class="icon-text">🧹</text>
-      </view>
-      <view class="func-info">
-        <text class="func-title">PDF 去水印</text>
-        <text class="func-desc">移除 PDF 文档中的水印内容</text>
-      </view>
-      <view class="arrow-circle">
-        <text class="arrow">→</text>
-      </view>
-    </view>
-
-    <!-- 游戏入口 -->
-    <view class="func-card animate-card card-7" bindtap="onGame">
-      <view class="func-icon game-bg">
-        <text class="icon-text">🎮</text>
-      </view>
-      <view class="func-info">
-        <text class="func-title">飞机大战</text>
-        <text class="func-desc">无聊了就试一试这个小飞机吧，好样的，布鲁斯！</text>
-        <view class="func-tag tag-new">新</view>
-      </view>
-      <view class="arrow-circle">
-        <text class="arrow">→</text>
-      </view>
-    </view>
-
-    <!-- 五子棋入口 -->
-    <view class="func-card animate-card card-8" bindtap="onGomoku">
-      <view class="func-icon gomoku-bg">
-        <text class="icon-text">⚫</text>
-      </view>
-      <view class="func-info">
-        <text class="func-title">手绘五子棋</text>
-        <text class="func-desc">来杯好茶摇一摇</text>
-      </view>
-      <view class="arrow-circle">
-        <text class="arrow">→</text>
+      <view class="banner-features">
+        <text class="banner-feature" wx:for="{{ bannerFeatures }}" wx:key="*this">{{ item }}</text>
       </view>
     </view>
   </view>
 
-  <!-- 更多选项入口 -->
-  <view class="more-entry animate-more" bindtap="onMore">
-    <text class="more-text">更多选项</text>
-    <text class="more-arrow">›</text>
+  <!-- ═══ 第二屏：核心功能卡 ═══ -->
+  <view class="core-section">
+    <view class="core-card" bindtap="onPdfToWord" hover-class="core-card-hover">
+      <view class="core-card-bg"></view>
+      <view class="core-card-content">
+        <view class="core-card-left">
+          <view class="core-card-icon-wrap">
+            <text class="core-card-icon">⚡</text>
+          </view>
+          <view class="core-card-text">
+            <text class="core-card-title">PDF 转 Word</text>
+            <text class="core-card-desc">最快 3 秒完成转换 · 保留原始排版</text>
+          </view>
+        </view>
+        <view class="core-card-arrow">
+          <text class="core-card-arrow-text">立即开始</text>
+          <view class="core-card-arrow-icon">→</view>
+        </view>
+      </view>
+    </view>
   </view>
 
-  <!-- 底部 -->
-  <view class="footer">
-    <text class="footer-text">文件不会保存到服务器，请及时下载</text>
+  <!-- ═══ 第三屏：全功能分类列表 ═══ -->
+  <view class="section-header">
+    <text class="section-title">全部工具</text>
+    <view class="section-action" bindtap="onViewAllTools">
+      <text>查看全部</text>
+      <text style="font-size: 24rpx;">›</text>
+    </view>
   </view>
+
+  <view class="cat-section" wx:for="{{ categories }}" wx:key="name" wx:for-item="cat">
+    <view class="cat-title">
+      <text>{{ cat.icon }}</text>
+      <text>{{ cat.name }}</text>
+    </view>
+    <scroll-view class="tool-horizontal" scroll-x enhanced show-scrollbar="{{ false }}">
+      <view class="tool-h-inner">
+        <view
+          class="tool-chip"
+          wx:for="{{ cat.tools }}"
+          wx:key="name"
+          bindtap="onNav"
+          data-url="{{ item.page }}"
+          hover-class="tool-chip-hover"
+        >
+          <text class="tool-chip-text">{{ item.name }}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 文案生成入口 -->
+  <view class="cat-section">
+    <view class="cat-title">
+      <text>{{ textGen.icon }}</text>
+      <text>{{ textGen.name }}</text>
+    </view>
+    <view class="tool-chip text-gen-chip" bindtap="onNav" data-url="{{ textGen.page }}" hover-class="tool-chip-hover">
+      <text class="tool-chip-text">📝 每日短句 · 文案 · 语录</text>
+      <text class="chip-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- ═══ 第四屏：最近使用 ═══ -->
+  <view class="section-header">
+    <text class="section-title">最近使用</text>
+    <view class="section-action" bindtap="onClearRecent" wx:if="{{ recentFiles.length > 0 }}">
+      <text>清空</text>
+    </view>
+  </view>
+
+  <view wx:if="{{ recentFiles.length > 0 }}" class="recent-list">
+    <view
+      class="recent-item"
+      wx:for="{{ recentFiles }}"
+      wx:key="time"
+      bindtap="onRecentFileTap"
+      data-file="{{ item }}"
+    >
+      <view class="recent-icon-wrap">
+        <text class="recent-icon">
+          <text wx:if="{{ item.convertType === 'pdf2word' }}">📄</text>
+          <text wx:elif="{{ item.convertType === 'word2pdf' }}">📝</text>
+          <text wx:elif="{{ item.convertType === 'img2pdf' }}">🖼</text>
+          <text wx:elif="{{ item.convertType === 'remove-watermark' }}">🧹</text>
+          <text wx:else>📄</text>
+        </text>
+      </view>
+      <view class="recent-info">
+        <text class="recent-name text-ellipsis">{{ item.filename }}</text>
+        <text class="recent-meta">
+          <text>{{ item.timeDisplay }}</text>
+          <text wx:if="{{ item.sizeDisplay }}"> · {{ item.sizeDisplay }}</text>
+        </text>
+      </view>
+      <view class="recent-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{ recentFiles.length === 0 }}" class="recent-empty">
+    <text class="recent-empty-icon">📂</text>
+    <text class="recent-empty-text">暂无使用记录</text>
+    <text class="recent-empty-hint">转换文件后将在这里显示</text>
+  </view>
+
+  <!-- ═══ 第五屏：休闲娱乐（横向滚动） ═══ -->
+  <view class="section-header" style="margin-top: 16rpx;">
+    <text class="section-title">休闲娱乐</text>
+  </view>
+
+  <scroll-view class="game-scroll" scroll-x enhanced show-scrollbar="{{ false }}">
+    <view class="game-scroll-inner">
+      <view
+        class="game-card"
+        wx:for="{{ games }}"
+        wx:key="id"
+        bindtap="onGame"
+        data-url="{{ item.page }}"
+        hover-class="game-card-hover"
+      >
+        <view class="game-card-bg {{ item.id }}-bg"></view>
+        <text class="game-card-icon">{{ item.icon }}</text>
+        <view class="game-card-info">
+          <text class="game-card-name">{{ item.name }}</text>
+          <text class="game-card-desc">{{ item.desc }}</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
 </view>

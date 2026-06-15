@@ -1,0 +1,20 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">时间戳 → 日期</view>
+    <view class="row"><input class="input" type="digit" value="{{ timestamp }}" bindinput="onStampInput" /><text class="label">秒</text></view>
+    <view class="result-box" bindtap="onCopy" data-text="{{ resultDate }}">
+      <text class="result-text">{{ resultDate || '输入时间戳' }}</text>
+      <text class="copy-hint">点击复制</text>
+    </view>
+    <button class="btn-small" bindtap="onNow">当前时间戳</button>
+  </view>
+  <view class="card">
+    <view class="section-title">日期 → 时间戳</view>
+    <input class="input" type="text" value="{{ dateTime }}" bindinput="onDateInput" placeholder="2026-06-15T12:00" />
+    <button class="btn-small" bindtap="dateToStamp" style="margin-top: 12rpx;">转换</button>
+    <view wx:if="{{ resultStamp }}" class="result-box" bindtap="onCopy" data-text="{{ resultStamp }}">
+      <text class="result-text">{{ resultStamp }}</text>
+      <text class="copy-hint">点击复制</text>
+    </view>
+  </view>
+</view>

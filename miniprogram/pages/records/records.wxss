@@ -1,0 +1,121 @@
+/* ══════════════════════════════════════════
+   转换记录页 — Apple Files 风格列表
+   ══════════════════════════════════════════ */
+
+.page-header {
+  padding: 24rpx 0 16rpx;
+}
+.page-header-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.page-header-desc {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-top: 6rpx;
+}
+
+.record-list {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 32rpx;
+}
+
+.record-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx var(--space-lg);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.record-item:active {
+  background: var(--bg-hover);
+}
+.record-item + .record-item {
+  border-top: 1rpx solid var(--border-light);
+}
+
+.record-icon-wrap {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  background: var(--color-primary-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+.record-icon {
+  font-size: 30rpx;
+}
+
+.record-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+.record-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.record-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+}
+.record-divider {
+  color: var(--border-medium);
+}
+.record-arrow {
+  font-size: 32rpx;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  margin-left: 12rpx;
+}
+
+/* 空状态 */
+.records-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 0;
+  gap: 12rpx;
+}
+.records-empty-icon {
+  font-size: 64rpx;
+  opacity: 0.5;
+  margin-bottom: 8rpx;
+}
+.records-empty-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+.records-empty-hint {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+}
+
+/* 清空 */
+.clear-bar {
+  display: flex;
+  justify-content: center;
+  padding: 16rpx 0 48rpx;
+}
+.clear-btn {
+  font-size: 26rpx;
+  color: var(--color-error);
+  opacity: 0.7;
+  padding: 12rpx 24rpx;
+}
+.clear-btn:active {
+  opacity: 1;
+}

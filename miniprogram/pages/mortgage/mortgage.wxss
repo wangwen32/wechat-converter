@@ -1,0 +1,11 @@
+/* pages/mortgage/mortgage.wxss */
+.card { margin-bottom: 24rpx; }
+.form-row { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 0; border-bottom: 1rpx solid var(--border-light); }
+.form-label { font-size: 26rpx; color: var(--text-primary); }
+.form-input { text-align: right; font-size: 26rpx; color: var(--text-primary); width: 200rpx; }
+.btn-primary { margin: 0 0 24rpx; }
+.result-card { }
+.result-row { display: flex; justify-content: space-between; padding: 16rpx 0; }
+.rl { font-size: 26rpx; color: var(--text-secondary); }
+.rv { font-size: 28rpx; color: var(--text-primary); font-weight: 600; }
+.highlight { color: var(--color-primary); font-size: 32rpx; }

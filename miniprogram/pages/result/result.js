@@ -1,5 +1,24 @@
 // pages/result/result.js
 const api = require('../../utils/api');
+const STORAGE_KEY = 'recent_conversions';
+
+/**
+ * 保存转换记录到缓存
+ */
+function saveRecentFile(file) {
+  try {
+    const records = wx.getStorageSync(STORAGE_KEY) || [];
+    records.unshift({
+      ...file,
+      time: Date.now(),
+      timeDisplay: new Date().toLocaleString('zh-CN', {
+        month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit',
+      }),
+    });
+    wx.setStorageSync(STORAGE_KEY, records.slice(0, 20));
+  } catch (e) {}
+}
 
 Page({
   data: {
@@ -13,6 +32,9 @@ Page({
     // 状态: converting | ready | error
     status: 'converting',
 
+    // 是否来自历史记录（来自历史不重复保存）
+    fromHistory: false,
+
     // 下载
     tempFilePath: '',
     downloadProgress: 0,
@@ -25,7 +47,7 @@ Page({
   },
 
   onLoad(options) {
-    
+
     this.setData({
       downloadUrl: decodeURIComponent(options.downloadUrl || ''),
       filename: decodeURIComponent(options.filename || ''),
@@ -34,11 +56,24 @@ Page({
       convertType: options.convertType || '',
       downloadKey: decodeURIComponent(options.downloadKey || ''),
       localPath: decodeURIComponent(options.localPath || ''),
+      fromHistory: options.fromHistory === '1',
     });
 
     // 优先使用上传时已保存的本地文件
     if (this.data.localPath) {
       this.setData({ status: 'ready', tempFilePath: this.data.localPath });
+      // 来自历史记录不重复保存
+      if (!this.data.fromHistory) {
+        saveRecentFile({
+          filename: this.data.filename,
+          size: this.data.size,
+          sizeDisplay: this.data.sizeDisplay,
+          convertType: this.data.convertType,
+          downloadUrl: this.data.downloadUrl,
+          downloadKey: this.data.downloadKey,
+          localPath: this.data.localPath,
+        });
+      }
     } else if (this.data.downloadUrl) {
       this.startDownload();
     } else {
@@ -59,6 +94,18 @@ Page({
           status: 'ready',
           tempFilePath: tempFilePath,
         });
+        // 来自历史记录不重复保存
+        if (!this.data.fromHistory) {
+          saveRecentFile({
+            filename: this.data.filename,
+            size: this.data.size,
+            sizeDisplay: this.data.sizeDisplay,
+            convertType: this.data.convertType,
+            downloadUrl: this.data.downloadUrl,
+            downloadKey: this.data.downloadKey,
+            localPath: this.data.localPath,
+          });
+        }
       })
       .catch((err) => {
         this.setData({

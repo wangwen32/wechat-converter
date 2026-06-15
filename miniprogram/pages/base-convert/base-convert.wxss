@@ -1,0 +1,13 @@
+/* pages/base-convert/base-convert.wxss */
+.card { margin-bottom: 24rpx; }
+.input { height: 80rpx; border: 1rpx solid var(--border-medium); border-radius: var(--radius-sm); padding: 0 16rpx; font-size: 32rpx; text-align: center; width: 100%; box-sizing: border-box; }
+.picker-row { display: flex; align-items: center; gap: 12rpx; margin: 16rpx 0; }
+.picker-box { flex: 1; display: flex; justify-content: space-between; padding: 12rpx 16rpx; background: var(--bg-hover); border-radius: var(--radius-sm); font-size: 24rpx; }
+.arrow { font-size: 32rpx; color: var(--text-tertiary); flex-shrink: 0; }
+.result-box { background: var(--color-primary-bg); border-radius: var(--radius-sm); padding: 24rpx; text-align: center; margin-top: 12rpx; }
+.result-text { font-size: 40rpx; font-weight: 700; color: var(--color-primary); word-break: break-all; }
+.copy-hint { font-size: 20rpx; color: var(--text-tertiary); display: block; margin-top: 6rpx; }
+.table { display: flex; flex-direction: column; font-size: 22rpx; }
+.tr { display: flex; border-bottom: 1rpx solid var(--border-light); }
+.td { flex: 1; padding: 10rpx 4rpx; text-align: center; color: var(--text-primary); }
+.td.h { font-weight: 600; color: var(--text-secondary); }

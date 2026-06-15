@@ -1,0 +1,27 @@
+<!-- pages/tools/tools.wxml — 全工具分类导航 -->
+<view class="page">
+  <view class="page-header">
+    <view class="page-header-icon">🔧</view>
+    <view class="page-header-text">
+      <text class="page-header-title">全部工具</text>
+      <text class="page-header-desc">6 大类，20+ 工具，免费使用</text>
+    </view>
+  </view>
+
+  <view class="cat-list" wx:for="{{ categories }}" wx:key="name">
+    <view class="section-title" style="padding: 20rpx 0 12rpx;">{{ item.name }}</view>
+    <view class="tool-grid-2col">
+      <view
+        class="tool-card"
+        wx:for="{{ item.tools }}"
+        wx:key="id"
+        bindtap="onToolTap"
+        data-page="{{ item.page }}"
+        hover-class="tool-card-hover"
+      >
+        <text class="tool-card-name">{{ item.name }}</text>
+        <text class="tool-card-desc">{{ item.desc }}</text>
+      </view>
+    </view>
+  </view>
+</view>

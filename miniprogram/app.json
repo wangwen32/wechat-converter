@@ -1,22 +1,71 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/tools/tools",
+    "pages/records/records",
+    "pages/profile/profile",
     "pages/convert/convert",
     "pages/result/result",
     "pages/img2pdf/img2pdf",
     "pages/barcode/barcode",
     "pages/qrcode/qrcode",
     "pages/remove-watermark/remove-watermark",
-    "pages/more/more",
     "pages/color-match/color-match",
     "pages/game/game",
-    "pages/gomoku/gomoku"
+    "pages/gomoku/gomoku",
+    "pages/pdf-tools/pdf-tools",
+    "pages/ocr/ocr",
+    "pages/image-compress/image-compress",
+    "pages/photo-restore/photo-restore",
+    "pages/id-photo/id-photo",
+    "pages/mortgage/mortgage",
+    "pages/tax/tax",
+    "pages/carloan/carloan",
+    "pages/unit-convert/unit-convert",
+    "pages/timestamp/timestamp",
+    "pages/base-convert/base-convert",
+    "pages/text-gen/text-gen"
   ],
   "window": {
-    "navigationBarBackgroundColor": "#FFF8F0",
-    "navigationBarTitleText": "PDF文档转换",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "文档转换大师",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#F0F5FF"
+    "backgroundColor": "#F7F9FC",
+    "backgroundColorTop": "#F7F9FC",
+    "backgroundColorBottom": "#F7F9FC"
+  },
+  "tabBar": {
+    "color": "#9CA3AF",
+    "selectedColor": "#1677FF",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "custom": false,
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "images/tab/home.png",
+        "selectedIconPath": "images/tab/home_active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/tools/tools",
+        "iconPath": "images/tab/tools.png",
+        "selectedIconPath": "images/tab/tools_active.png",
+        "text": "工具"
+      },
+      {
+        "pagePath": "pages/records/records",
+        "iconPath": "images/tab/records.png",
+        "selectedIconPath": "images/tab/records_active.png",
+        "text": "记录"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "iconPath": "images/tab/profile.png",
+        "selectedIconPath": "images/tab/profile_active.png",
+        "text": "我的"
+      }
+    ]
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"

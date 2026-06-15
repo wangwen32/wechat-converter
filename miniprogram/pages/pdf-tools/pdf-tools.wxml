@@ -1,0 +1,71 @@
+<!-- pages/pdf-tools/pdf-tools.wxml -->
+<view class="page">
+  <!-- tab 切换 -->
+  <view class="tab-bar">
+    <view class="tab-item {{ tab === 'merge' ? 'active' : '' }}" bindtap="onTabChange" data-tab="merge">
+      <text>合并 PDF</text>
+    </view>
+    <view class="tab-item {{ tab === 'split' ? 'active' : '' }}" bindtap="onTabChange" data-tab="split">
+      <text>拆分 PDF</text>
+    </view>
+  </view>
+
+  <!-- 合并 -->
+  <view wx:if="{{ tab === 'merge' }}">
+    <view class="card" style="margin-top: 20rpx;">
+      <view class="section-title">选择 PDF 文件</view>
+      <view class="upload-area" bindtap="onAddFile">
+        <text class="upload-icon">📄</text>
+        <text class="upload-text">点击添加 PDF 文件</text>
+        <text class="upload-hint">支持多选，至少 2 个文件</text>
+      </view>
+
+      <view wx:if="{{ files.length > 0 }}" class="file-list">
+        <view class="file-item" wx:for="{{ files }}" wx:key="index">
+          <text class="file-name">{{ item.name }}</text>
+          <text class="file-remove" bindtap="onRemoveFile" data-index="{{ index }}">✕</text>
+        </view>
+      </view>
+    </view>
+
+    <button class="btn-primary" style="margin: 24rpx 0;" disabled="{{ files.length < 2 || merging }}" bindtap="onMerge">
+      {{ merging ? '⏳ 合并中...' : '📄 开始合并' }}
+    </button>
+  </view>
+
+  <!-- 拆分 -->
+  <view wx:if="{{ tab === 'split' }}">
+    <view class="card" style="margin-top: 20rpx;">
+      <view class="section-title">选择 PDF 文件</view>
+
+      <view wx:if="{{ !selected }}" class="upload-area" bindtap="onChooseFile">
+        <text class="upload-icon">📄</text>
+        <text class="upload-text">点击选择 PDF 文件</text>
+      </view>
+
+      <view wx:else class="file-info">
+        <text class="file-name">{{ fileName }}</text>
+        <text class="file-size">{{ fileSize }}</text>
+        <text class="file-clear" bindtap="onClearFile">✕</text>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{ selected }}">
+      <view class="section-title">拆分方式</view>
+      <picker mode="selector" range="{{ ['每页一个文件', '指定页码范围'] }}" value="{{ splitMode === 'all' ? 0 : 1 }}" bindchange="onSplitModeChange">
+        <view class="picker-box">
+          <text>{{ splitMode === 'all' ? '每页一个文件' : '指定页码范围' }}</text>
+        </view>
+      </picker>
+
+      <view wx:if="{{ splitMode !== 'all' }}" style="margin-top: 16rpx;">
+        <input class="text-input" placeholder="例如: 1-3,5-7" value="{{ splitPageRange }}" bindinput="onRangeInput" />
+        <text style="font-size: 22rpx; color: var(--text-tertiary); margin-top: 8rpx; display: block;">页码范围用逗号分隔，如 1-3,5-7</text>
+      </view>
+    </view>
+
+    <button class="btn-primary" style="margin: 24rpx 0;" disabled="{{ !selected || splitting }}" bindtap="onSplit">
+      {{ splitting ? '⏳ 拆分中...' : '✂️ 开始拆分' }}
+    </button>
+  </view>
+</view>

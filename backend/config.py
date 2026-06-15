@@ -28,6 +28,10 @@ ALLOWED_EXTENSIONS = {
     "word2pdf": [".docx"],
     "img2pdf": [".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tiff", ".tif"],
     "remove_watermark": [".pdf"],
+    "ocr": [".jpg", ".jpeg", ".png", ".bmp", ".webp", ".pdf"],
+    "compress_image": [".jpg", ".jpeg", ".png", ".bmp", ".webp"],
+    "id_photo": [".jpg", ".jpeg", ".png"],
+    "restore_photo": [".jpg", ".jpeg", ".png", ".bmp"],
 }
 
 # 条形码类型

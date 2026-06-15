@@ -1,4 +1,5 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "PDF文档转换"
+  "navigationStyle": "custom",
+  "disableScroll": false
 }

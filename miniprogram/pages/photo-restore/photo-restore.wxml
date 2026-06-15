@@ -1,0 +1,25 @@
+<view class="page">
+  <view class="tab-bar">
+    <view class="tab-item {{ mode === 'restore' ? 'active' : '' }}" bindtap="onModeChange" data-mode="restore">修复</view>
+    <view class="tab-item {{ mode === 'colorize' ? 'active' : '' }}" bindtap="onModeChange" data-mode="colorize">上色</view>
+  </view>
+  <view class="card" style="margin-top: 20rpx;">
+    <view class="section-title">{{ mode === 'restore' ? '选择老照片' : '选择黑白照片' }}</view>
+    <view wx:if="{{ !selected }}" class="upload-area" bindtap="onChooseImage">
+      <text class="upload-icon">📸</text>
+      <text class="upload-text">点击选择照片</text>
+    </view>
+    <view wx:else class="preview-row">
+      <image class="thumb" src="{{ imagePath }}" mode="aspectFit"></image>
+      <text class="file-clear" bindtap="onClearImage">✕ 重新选择</text>
+    </view>
+  </view>
+  <button class="btn-primary" disabled="{{ !selected || processing }}" bindtap="onProcess">
+    {{ processing ? '⏳ 处理中...' : (mode === 'restore' ? '✨ 开始修复' : '🎨 开始上色') }}
+  </button>
+  <view wx:if="{{ resultPath }}" class="card">
+    <view class="section-title">处理结果</view>
+    <image class="result-img" src="{{ resultPath }}" mode="aspectFit"></image>
+    <button class="btn-secondary" bindtap="onSave">💾 保存到相册</button>
+  </view>
+</view>

@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">选择图片</view>
+    <view wx:if="{{ !selected }}" class="upload-area" bindtap="onChooseImage">
+      <text class="upload-icon">🖼</text>
+      <text class="upload-text">点击选择图片</text>
+      <text class="upload-hint">支持 JPG/PNG</text>
+    </view>
+    <view wx:else class="preview-row">
+      <image class="thumb" src="{{ imagePath }}" mode="aspectFit"></image>
+      <view class="file-info"><text class="file-name">{{ fileName }}</text><text class="file-size">{{ fileSize }}</text></view>
+      <text class="file-clear" bindtap="onClearImage">✕</text>
+    </view>
+  </view>
+  <view class="card" wx:if="{{ selected }}">
+    <view class="section-title">压缩质量</view>
+    <view class="slider-row">
+      <text>低</text>
+      <slider value="{{ quality }}" min="20" max="100" step="5" bindchange="onQualityChange" color="#1677FF" />
+      <text>高</text>
+    </view>
+    <text style="text-align: center; display: block; font-size: 28rpx; color: var(--color-primary);">当前: {{ quality }}%</text>
+  </view>
+  <button class="btn-primary" wx:if="{{ selected }}" disabled="{{ compressing }}" bindtap="onCompress">
+    {{ compressing ? '⏳ 压缩中...' : '📦 开始压缩' }}
+  </button>
+  <view wx:if="{{ resultPath }}" class="card" style="margin-top: 16rpx;">
+    <view class="section-title">压缩完成</view>
+    <image class="thumb" src="{{ resultPath }}" mode="aspectFit"></image>
+    <button class="btn-secondary" bindtap="onSave">💾 保存到相册</button>
+  </view>
+</view>

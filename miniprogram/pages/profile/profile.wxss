@@ -1,0 +1,158 @@
+/* ══════════════════════════════════════════
+   「我的」页面
+   ══════════════════════════════════════════ */
+
+/* ── 用户卡片 ── */
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 40rpx var(--space-lg);
+  margin-bottom: 24rpx;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, #1677FF, #4096FF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 16rpx rgba(22, 119, 255, 0.25);
+}
+.profile-avatar-text {
+  font-size: 44rpx;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+.profile-name {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.profile-version {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+}
+
+/* ── 设置卡片 ── */
+.settings-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx var(--space-lg);
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 88rpx;
+}
+.setting-item:active {
+  background: var(--bg-hover);
+}
+
+.setting-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  flex: 1;
+}
+
+.setting-icon-wrap {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.setting-icon {
+  font-size: 28rpx;
+}
+
+.setting-label {
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.setting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.setting-desc {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+}
+
+.setting-right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
+.setting-value {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+}
+.setting-arrow {
+  font-size: 32rpx;
+  color: var(--text-tertiary);
+}
+
+.setting-switch {
+  transform: scale(0.8);
+  transform-origin: right center;
+}
+
+.setting-divider {
+  height: 1rpx;
+  background: var(--border-light);
+  margin: 0 var(--space-lg);
+}
+
+/* ── 分享按钮 override ── */
+.share-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 28rpx var(--space-lg) !important;
+  margin: 0 !important;
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  line-height: normal !important;
+  font-size: inherit !important;
+  width: 100% !important;
+  text-align: left !important;
+}
+.share-btn::after {
+  display: none !important;
+}
+
+/* ── 底部 ── */
+.profile-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64rpx 0 48rpx;
+}
+.profile-footer-text {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+}

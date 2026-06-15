@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">贷款信息</view>
+    <view class="form-row"><text class="form-label">车辆价格（元）</text><input class="form-input" type="digit" value="{{ totalPrice }}" bindinput="onInput" data-field="totalPrice" /></view>
+    <view class="form-row"><text class="form-label">首付金额（元）</text><input class="form-input" type="digit" value="{{ downPayment }}" bindinput="onInput" data-field="downPayment" /></view>
+    <view class="form-row"><text class="form-label">年利率（%）</text><input class="form-input" type="digit" value="{{ yearRate }}" bindinput="onInput" data-field="yearRate" /></view>
+    <view class="form-row"><text class="form-label">贷款年限（年）</text><input class="form-input" type="digit" value="{{ years }}" bindinput="onInput" data-field="years" /></view>
+  </view>
+  <button class="btn-primary" bindtap="onCalc">开始计算</button>
+  <view wx:if="{{ result }}" class="card result-card">
+    <view class="section-title">计算结果</view>
+    <view class="result-row"><text class="rl">贷款金额</text><text class="rv">{{ result.loan }} 元</text></view>
+    <view class="result-row"><text class="rl">月供</text><text class="rv highlight">{{ result.monthly }} 元</text></view>
+    <view class="result-row"><text class="rl">利息总额</text><text class="rv">{{ result.totalInterest }} 元</text></view>
+    <view class="result-row"><text class="rl">还款总额</text><text class="rv">{{ result.totalPayment }} 元</text></view>
+  </view>
+</view>

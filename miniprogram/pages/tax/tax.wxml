@@ -1,0 +1,16 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">收入信息</view>
+    <view class="form-row"><text class="form-label">月收入（元）</text><input class="form-input" type="digit" value="{{ income }}" bindinput="onInput" data-field="income" /></view>
+    <view class="form-row"><text class="form-label">五险一金（元）</text><input class="form-input" type="digit" value="{{ social }}" bindinput="onInput" data-field="social" /></view>
+    <view class="form-row"><text class="form-label">专项扣除（元）</text><input class="form-input" type="digit" value="{{ special }}" bindinput="onInput" data-field="special" /></view>
+  </view>
+  <button class="btn-primary" bindtap="onCalc">开始计算</button>
+  <view wx:if="{{ result }}" class="card result-card">
+    <view class="section-title">计算结果</view>
+    <view class="result-row"><text class="rl">应纳税所得额</text><text class="rv">{{ result.tax > 0 ? '需缴税' : '无需缴税' }}</text></view>
+    <view class="result-row"><text class="rl">适用税率</text><text class="rv">{{ result.rate }}</text></view>
+    <view class="result-row"><text class="rl">应缴税款</text><text class="rv highlight">{{ result.tax }} 元</text></view>
+    <view class="result-row"><text class="rl">实发工资</text><text class="rv">{{ result.afterTax }} 元</text></view>
+  </view>
+</view>

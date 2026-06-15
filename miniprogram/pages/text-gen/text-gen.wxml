@@ -1,0 +1,22 @@
+<view class="page" style="display: flex; flex-direction: column; min-height: 100vh;">
+  <!-- 分类选择 -->
+  <picker mode="selector" range="{{ categories }}" value="{{ catIndex }}" bindchange="onCatChange">
+    <view class="cat-bar">
+      <text class="cat-text">{{ categories[catIndex] }}</text>
+      <text class="cat-arrow">▼</text>
+    </view>
+  </picker>
+
+  <!-- 内容卡片 -->
+  <view class="quote-card" bindtap="onCopy">
+    <view class="quote-content">
+      <text class="quote-mark">"</text>
+      <text class="quote-text">{{ currentText }}</text>
+      <text class="quote-mark right">"</text>
+    </view>
+    <text class="quote-hint">点击复制</text>
+  </view>
+
+  <!-- 生成按钮 -->
+  <button class="btn-primary" bindtap="generate">🔄 换一个</button>
+</view>

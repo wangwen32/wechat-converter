@@ -1,0 +1,10 @@
+/* pages/text-gen/text-gen.wxss */
+.cat-bar { display: flex; align-items: center; justify-content: center; gap: 8rpx; padding: 24rpx 0; font-size: 32rpx; color: var(--text-primary); background: var(--bg-card); border-radius: var(--radius-lg); margin-bottom: 24rpx; box-shadow: var(--shadow-sm); }
+.cat-arrow { font-size: 20rpx; color: var(--text-tertiary); }
+.quote-card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-card); border-radius: var(--radius-lg); padding: 48rpx 32rpx; margin-bottom: 24rpx; box-shadow: var(--shadow-sm); min-height: 400rpx; }
+.quote-content { position: relative; padding: 0 24rpx; }
+.quote-mark { position: absolute; top: -20rpx; left: -10rpx; font-size: 80rpx; color: var(--color-primary); opacity: 0.2; font-family: serif; }
+.quote-mark.right { left: auto; right: -10rpx; top: auto; bottom: -60rpx; }
+.quote-text { font-size: 34rpx; line-height: 1.8; color: var(--text-primary); text-align: center; letter-spacing: 2rpx; }
+.quote-hint { font-size: 22rpx; color: var(--text-tertiary); margin-top: 32rpx; }
+.btn-primary { margin-top: auto; }

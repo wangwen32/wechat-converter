@@ -1,0 +1,22 @@
+<view class="page">
+  <view class="card">
+    <view class="section-title">选择图片</view>
+    <view wx:if="{{ !selected }}" class="upload-area" bindtap="onChooseImage">
+      <text class="upload-icon">📷</text>
+      <text class="upload-text">拍照或选择图片</text>
+      <text class="upload-hint">支持 JPG/PNG，文字清晰识别更准确</text>
+    </view>
+    <view wx:else class="image-preview">
+      <image class="preview-img" src="{{ imagePath }}" mode="aspectFit"></image>
+      <text class="file-clear" bindtap="onClearImage">✕ 重新选择</text>
+    </view>
+  </view>
+  <button class="btn-primary" disabled="{{ !selected || recognizing }}" bindtap="onRecognize">
+    {{ recognizing ? '⏳ 识别中...' : '🔍 开始识别' }}
+  </button>
+  <view wx:if="{{ result }}" class="card result-card">
+    <view class="section-title">识别结果</view>
+    <text class="result-content">{{ result }}</text>
+    <text class="copy-btn" bindtap="onCopy">📋 复制结果</text>
+  </view>
+</view>
