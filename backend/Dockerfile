@@ -28,8 +28,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# PaddleOCR（安装失败不影响主服务，OCR功能会提示手动安装）
-RUN pip install --default-timeout=600 --no-cache-dir paddlepaddle==2.5.2 paddleocr==2.7.3 || echo "PaddleOCR 安装跳过"
+COPY start.sh ./
+RUN chmod +x start.sh
 
 # 复制源码
 COPY . .
@@ -39,4 +39,4 @@ RUN mkdir -p /app/temp/uploads /app/temp/output
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["bash", "start.sh"]
