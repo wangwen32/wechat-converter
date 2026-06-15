@@ -53,57 +53,111 @@ async def make_id_photo(input_path: str, output_path: str,
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     # 尝试百度AI人像分割
+    ai_ok = False
     try:
         from services.baidu_ai_service import segment_body
+        import base64
         seg = await segment_body(input_path)
-        if seg.get("foreground"):
-            import base64
-            fore_bytes = base64.b64decode(seg["foreground"])
-        fore_path = input_path + "_fore.png"
-        with open(fore_path, "wb") as f:
-            f.write(fore_bytes)
-        # 用前景图做证件照
-        await asyncio.get_event_loop().run_in_executor(
-            _executor, _do_id_photo, fore_path, output_path, bg_color, size_mm,
-        )
-        if os.path.isfile(fore_path):
-            os.remove(fore_path)
-        return output_path
+        fore_b64 = seg.get("foreground", "")
+        if fore_b64:
+            fore_bytes = base64.b64decode(fore_b64)
+            # 保存为 PNG（保留透明通道）
+            fore_path = os.path.join(os.path.dirname(output_path), "_fore.png")
+            with open(fore_path, "wb") as f:
+                f.write(fore_bytes)
+            # 用前景图做证件照
+            await asyncio.get_event_loop().run_in_executor(
+                _executor, _do_id_photo, fore_path, output_path, bg_color, size_mm,
+            )
+            if os.path.isfile(fore_path):
+                os.remove(fore_path)
+            logger.info("百度AI人像分割 + 证件照制作完成")
+            return output_path
+        else:
+            logger.warning("百度AI人像分割返回空前景")
     except ImportError:
         logger.info("baidu_ai_service 未找到")
     except Exception as e:
-        logger.warning("百度AI人像分割失败，回退到简单放置: %s", str(e)[:100])
+        logger.error("百度AI人像分割失败: %s", str(e)[:200])
 
     # 回退：直接居中放置
+    logger.info("使用普通方式制作证件照（无AI抠图）")
     await asyncio.get_event_loop().run_in_executor(
-        _executor, _do_id_photo, input_path, output_path, bg_color, size_mm,
+        _executor, _do_id_photo_plain, input_path, output_path, bg_color, size_mm,
     )
     return output_path
 
 
-def _do_id_photo(input_path: str, output_path: str, bg_color: str, size_mm: tuple):
+def _has_alpha(img) -> bool:
+    """检测图片是否有透明通道"""
+    return img.mode in ("RGBA", "LA", "PA", "P") or "transparency" in img.info
+
+
+def _get_alpha_mask(img):
+    """获取图片的透明通道mask"""
+    if img.mode == "RGBA":
+        return img.split()[-1]
+    if img.mode == "P":
+        return img.convert("RGBA").split()[-1]
+    return None
+
+
+def _do_id_photo(fore_path: str, output_path: str, bg_color: str, size_mm: tuple):
+    """用百度AI前景图（带透明通道）合成证件照"""
     from PIL import ImageColor
+    img = Image.open(fore_path)
 
-    with Image.open(input_path) as img:
-        dpi = 300
-        target_w = int(size_mm[0] / 25.4 * dpi)
-        target_h = int(size_mm[1] / 25.4 * dpi)
+    dpi = 300
+    target_w = int(size_mm[0] / 25.4 * dpi)
+    target_h = int(size_mm[1] / 25.4 * dpi)
 
-        ratio = min(target_w / img.width, target_h / img.height) * 0.85
-        new_w = int(img.width * ratio)
-        new_h = int(img.height * ratio)
-        img = img.resize((new_w, new_h), Image.LANCZOS)
+    # 缩放到合适大小
+    ratio = min(target_w / img.width, target_h / img.height) * 0.85
+    new_w = int(img.width * ratio)
+    new_h = int(img.height * ratio)
+    img = img.resize((new_w, new_h), Image.LANCZOS)
 
-        bg_rgb = ImageColor.getrgb(bg_color)
-        canvas = Image.new("RGBA", (target_w, target_h), (*bg_rgb, 255))
+    # 确保有 alpha 通道
+    if img.mode != "RGBA":
+        img = img.convert("RGBA")
 
-        x = (target_w - new_w) // 2
-        y = (target_h - new_h) // 2
+    bg_rgb = ImageColor.getrgb(bg_color)
+    canvas = Image.new("RGBA", (target_w, target_h), (*bg_rgb, 255))
 
-        # 前景有透明通道 → 用 alpha 作为 mask 合成到背景上
-        if img.mode == "RGBA":
-            canvas.paste(img, (x, y), img)
-        else:
-            canvas.paste(img.convert("RGB"), (x, y))
+    x = (target_w - new_w) // 2
+    y = (target_h - new_h) // 2
+    canvas.paste(img, (x, y), img)  # 用自身 alpha 做 mask 合成
 
-        canvas.convert("RGB").save(output_path, "JPEG", quality=95)
+    canvas.convert("RGB").save(output_path, "JPEG", quality=95)
+    img.close()
+
+
+def _do_id_photo_plain(input_path: str, output_path: str, bg_color: str, size_mm: tuple):
+    """无AI时：直接缩放+居中放置（无法去掉原背景）"""
+    from PIL import ImageColor
+    img = Image.open(input_path)
+
+    dpi = 300
+    target_w = int(size_mm[0] / 25.4 * dpi)
+    target_h = int(size_mm[1] / 25.4 * dpi)
+
+    ratio = min(target_w / img.width, target_h / img.height) * 0.85
+    new_w = int(img.width * ratio)
+    new_h = int(img.height * ratio)
+    img = img.resize((new_w, new_h), Image.LANCZOS)
+
+    bg_rgb = ImageColor.getrgb(bg_color)
+    canvas = Image.new("RGB", (target_w, target_h), bg_rgb)
+
+    x = (target_w - new_w) // 2
+    y = (target_h - new_h) // 2
+
+    # 原图可能有透明通道（如 PNG 透明背景）
+    mask = _get_alpha_mask(img)
+    if mask:
+        canvas.paste(img.convert("RGB"), (x, y), mask)
+    else:
+        canvas.paste(img.convert("RGB"), (x, y))
+
+    canvas.save(output_path, "JPEG", quality=95)
+    img.close()
