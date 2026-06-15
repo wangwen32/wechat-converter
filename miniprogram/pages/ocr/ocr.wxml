@@ -18,7 +18,7 @@
     <view class="section-title">识别结果</view>
     <view class="confidence-row" wx:if="{{ confidence > 0 }}">
       <text class="confidence-label">置信度</text>
-      <text class="confidence-value">{{ (confidence * 100).toFixed(1) }}%</text>
+      <text class="confidence-value">{{ confidencePct }}%</text>
     </view>
     <text class="result-content">{{ result }}</text>
     <text class="copy-btn" bindtap="onCopy">📋 复制结果</text>

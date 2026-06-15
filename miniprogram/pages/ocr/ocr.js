@@ -2,7 +2,7 @@
 const CLOUD_HOST = 'https://convertmy.kaixin8.top';
 
 Page({
-  data: { selected: false, imagePath: '', result: '', recognizing: false, confidence: 0 },
+  data: { selected: false, imagePath: '', result: '', recognizing: false, confidence: 0, confidencePct: '0' },
 
   onChooseImage() {
     wx.chooseImage({ count: 1, sizeType: ['original'], sourceType: ['album', 'camera'],
@@ -27,6 +27,7 @@ Page({
         this.setData({
           result: result.data.text || '未识别到文字',
           confidence: result.data.confidence || 0,
+          confidencePct: ((result.data.confidence || 0) * 100).toFixed(1),
           recognizing: false,
         });
         wx.showToast({ title: '识别完成', icon: 'success' });
