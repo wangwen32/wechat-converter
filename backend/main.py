@@ -118,7 +118,7 @@ async def status():
     }
 
 
-@app.post("/api/convert/test-baidu")
+@app.api_route("/api/convert/test-baidu", methods=["GET", "POST"])
 async def test_baidu():
     """测试百度AI连接是否正常"""
     from services.baidu_ai_service import BAIDU_API_KEY, BAIDU_SECRET_KEY, get_access_token
