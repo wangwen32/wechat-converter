@@ -15,11 +15,12 @@ _executor = ThreadPoolExecutor(max_workers=1)
 # 尝试导入 PaddleOCR
 try:
     from paddleocr import PaddleOCR
-    _ocr = None  # 延迟初始化
     PADDLE_AVAILABLE = True
 except ImportError:
     PADDLE_AVAILABLE = False
     logger.warning("PaddleOCR 未安装，OCR 将使用 PyMuPDF 文本提取")
+
+_ocr = None  # 延迟初始化，放在 try 外面确保变量始终存在
 
 
 def get_ocr():
