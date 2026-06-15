@@ -10,7 +10,7 @@ RUN apt-get update && \
         fonts-wqy-microhei \
         fonts-noto-cjk \
         ca-certificates \
-        libgl1-mesa-glx \
+        libgl1 \
         libglib2.0-0 \
         && \
     update-ca-certificates --fresh && \
