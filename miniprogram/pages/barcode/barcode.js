@@ -59,8 +59,10 @@ Page({
 
     try {
       const result = await api.generateBarcode(data, typeKey);
-      // 先下载图片到本地再显示
-      const tempPath = await api.downloadFile(result.downloadUrl, result.filename, result.downloadKey);
+      let tempPath = result.fileBase64 ? await api.saveBase64ToFile(result.fileBase64, result.filename) : null;
+      if (!tempPath) {
+        tempPath = await api.downloadFile(result.downloadUrl, result.filename, result.downloadKey);
+      }
       this.setData({
         generating: false,
         resultUrl: tempPath,

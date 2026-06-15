@@ -72,6 +72,12 @@ def _do_ocr(input_path: str, lang: str) -> dict:
         doc.close()
         if text.strip():
             return {"text": text.strip(), "confidence": 1.0, "method": "pymupdf"}
-        return {"text": "未识别到文字", "confidence": 0, "method": "none"}
+        # 判断文件类型给出更有用的提示
+        ext = os.path.splitext(input_path)[1].lower()
+        if ext in ('.jpg', '.jpeg', '.png', '.bmp', '.webp'):
+            hint = "图片文字识别需要安装 PaddleOCR\n请在服务器执行: pip install paddlepaddle paddleocr"
+        else:
+            hint = "该 PDF 没有可提取的文本层（可能是扫描件）"
+        return {"text": hint, "confidence": 0, "method": "none"}
     except Exception as e:
         return {"text": f"识别失败: {str(e)}", "confidence": 0, "method": "error"}

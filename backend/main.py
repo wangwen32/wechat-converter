@@ -545,6 +545,9 @@ async def generate_barcode_api(
 
         file_size = os.path.getsize(output_path)
 
+        with open(output_path, "rb") as f:
+            file_base64 = base64.b64encode(f.read()).decode("utf-8")
+
         return {
             "code": 0,
             "message": "条形码生成成功",
@@ -554,6 +557,7 @@ async def generate_barcode_api(
                 "size": file_size,
                 "barcode_type": barcode_type,
                 "download_key": filename,
+                "file_base64": file_base64,
             },
         }
     except ValueError as e:
@@ -586,6 +590,9 @@ async def generate_qrcode_api(
 
         file_size = os.path.getsize(output_path)
 
+        with open(output_path, "rb") as f:
+            file_base64 = base64.b64encode(f.read()).decode("utf-8")
+
         return {
             "code": 0,
             "message": "二维码生成成功",
@@ -594,6 +601,7 @@ async def generate_qrcode_api(
                 "filename": "二维码.png",
                 "size": file_size,
                 "download_key": filename,
+                "file_base64": file_base64,
             },
         }
     except ValueError as e:

@@ -58,12 +58,14 @@ Page({
         fileBases.push({ name: f.name, data: base64 });
       }
 
-      // 使用 app.callApi（自动处理 debug/云托管两种模式）
+      // 直连后端（避免 callContainer 大 JSON 报 -606001）
+      const CLOUD_HOST = 'https://convertmy.kaixin8.top';
       const result = await new Promise((resolve, reject) => {
-        getApp().callApi({
-          url: '/api/convert/merge-pdf',
+        wx.request({
+          url: CLOUD_HOST + '/api/convert/merge-pdf',
           method: 'POST',
           data: { files: fileBases },
+          timeout: 120000,
           success: (res) => {
             if (res.data && res.data.code === 0) resolve(res.data);
             else reject(new Error((res.data && res.data.detail) || '合并失败'));

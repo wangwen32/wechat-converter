@@ -150,6 +150,7 @@ function generateBarcode(data, barcodeType = 'code128') {
           filename: body.data.filename,
           size: body.data.size,
           downloadKey: body.data.download_key,
+          fileBase64: body.data.file_base64 || '',
         });
       },
       fail(err) {
@@ -175,6 +176,7 @@ function generateQRCode(data) {
           filename: body.data.filename,
           size: body.data.size,
           downloadKey: body.data.download_key,
+          fileBase64: body.data.file_base64 || '',
         });
       },
       fail(err) {
@@ -226,7 +228,25 @@ function formatSize(bytes) {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
+/** 将 base64 保存为本地临时文件，返回文件路径 */
+function saveBase64ToFile(base64, filename) {
+  try {
+    const fs = wx.getFileSystemManager();
+    const tempDir = `${wx.env.USER_DATA_PATH}/downloads`;
+    try { fs.mkdirSync(tempDir); } catch (e) {}
+    const safeName = (filename || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const tempPath = `${tempDir}/${safeName}`;
+    const arrayBuffer = wx.base64ToArrayBuffer(base64);
+    fs.writeFileSync(tempPath, arrayBuffer);
+    return tempPath;
+  } catch (e) {
+    console.warn('保存文件失败', e);
+    return '';
+  }
+}
+
 module.exports = {
+  saveBase64ToFile,
   getBaseUrl,
   uploadAndConvert,
   downloadFile,
