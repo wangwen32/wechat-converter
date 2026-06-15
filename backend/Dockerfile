@@ -5,6 +5,7 @@ FROM python:3.11-slim
 #   - libreoffice-writer: Word→PDF 转换
 #   - libffi-dev / pkg-config: pdf2docx 内部依赖
 #   - fonts-wqy-zenhei: 中文字体（防止转换后中文乱码）
+#   - libgl1-mesa-glx / libglib2.0-0: PaddleOCR 依赖
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libreoffice-writer \
@@ -13,6 +14,8 @@ RUN apt-get update && \
         fonts-wqy-zenhei \
         fonts-wqy-microhei \
         fonts-noto-cjk \
+        libgl1-mesa-glx \
+        libglib2.0-0 \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

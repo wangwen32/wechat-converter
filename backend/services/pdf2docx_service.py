@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 _executor = ThreadPoolExecutor(max_workers=2)
 
 # 每页最少文本字符数，低于此值判定为扫描件
-MIN_TEXT_CHARS_PER_PAGE = 30
+MIN_TEXT_CHARS_PER_PAGE = 10
 
 
 async def pdf_to_word(input_path: str, output_path: str) -> str:

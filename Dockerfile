@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# 安装依赖：LibreOffice + SSL 证书
+# 安装依赖：LibreOffice + SSL 证书 + PaddleOCR 系统库
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libreoffice-writer \
@@ -10,6 +10,8 @@ RUN apt-get update && \
         fonts-wqy-microhei \
         fonts-noto-cjk \
         ca-certificates \
+        libgl1-mesa-glx \
+        libglib2.0-0 \
         && \
     update-ca-certificates --fresh && \
     apt-get clean && \
