@@ -109,7 +109,26 @@ async def _cleanup_loop():
 @app.get("/api/convert/status")
 async def status():
     """健康检查"""
-    return {"status": "ok", "service": "微信文档转换助手"}
+    from services.baidu_ai_service import BAIDU_API_KEY, BAIDU_SECRET_KEY
+    baidu_ok = bool(BAIDU_API_KEY and BAIDU_SECRET_KEY)
+    return {
+        "status": "ok",
+        "service": "微信文档转换助手",
+        "baidu_ai": "已配置" if baidu_ok else "未配置",
+    }
+
+
+@app.post("/api/convert/test-baidu")
+async def test_baidu():
+    """测试百度AI连接是否正常"""
+    from services.baidu_ai_service import BAIDU_API_KEY, BAIDU_SECRET_KEY, get_access_token
+    if not BAIDU_API_KEY or not BAIDU_SECRET_KEY:
+        return {"code": -1, "message": "未配置 BAIDU_API_KEY 或 BAIDU_SECRET_KEY"}
+    try:
+        token = await get_access_token()
+        return {"code": 0, "message": "百度AI连接正常", "token_prefix": token[:10] + "..."}
+    except Exception as e:
+        return {"code": -1, "message": f"百度AI连接失败: {str(e)}"}
 
 
 @app.post("/api/convert/word2pdf")
