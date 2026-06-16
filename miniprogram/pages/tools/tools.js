@@ -19,7 +19,6 @@ Page({
         tools: [
           { id: 'compress', name: '图片压缩', desc: '减小图片体积', page: '/pages/image-compress/image-compress' },
           { id: 'restore', name: '老照片修复', desc: '修复模糊老照片', page: '/pages/photo-restore/photo-restore' },
-          { id: 'idphoto', name: '证件照制作', desc: '换背景/裁尺寸', page: '/pages/id-photo/id-photo' },
         ],
       },
       {

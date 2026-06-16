@@ -27,7 +27,6 @@ Page({
         tools: [
           { name: '图片压缩', page: '/pages/image-compress/image-compress' },
           { name: '老照片修复', page: '/pages/photo-restore/photo-restore' },
-          { name: '证件照制作', page: '/pages/id-photo/id-photo' },
         ],
       },
       {

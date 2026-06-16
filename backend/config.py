@@ -32,6 +32,7 @@ ALLOWED_EXTENSIONS = {
     "compress_image": [".jpg", ".jpeg", ".png", ".bmp", ".webp"],
     "id_photo": [".jpg", ".jpeg", ".png"],
     "restore_photo": [".jpg", ".jpeg", ".png", ".bmp"],
+    "colorize_photo": [".jpg", ".jpeg", ".png", ".bmp"],
 }
 
 # 条形码类型

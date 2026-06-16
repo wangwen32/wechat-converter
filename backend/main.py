@@ -38,7 +38,7 @@ from services.watermark_service import remove_watermark
 from services.security_service import check_image
 from services.pdf_service import merge_pdfs, split_pdf
 from services.ocr_service import ocr_image
-from services.image_service import compress_image, make_id_photo
+from services.image_service import compress_image
 from services.photo_restore_service import restore_photo, colorize_photo
 
 # ── 日志 ──
@@ -394,24 +394,6 @@ async def convert_compress_image(file: UploadFile = File(...), quality: int = Fo
         raise HTTPException(500, detail=f"压缩失败: {str(e)}")
 
 
-@app.post("/api/convert/id-photo")
-async def convert_id_photo(file: UploadFile = File(...), bg_color: str = Form("#FFFFFF")):
-    """证件照制作"""
-    task_id = uuid.uuid4().hex[:12]
-    input_ext = os.path.splitext(file.filename)[1].lower()
-    input_path = os.path.join(UPLOAD_DIR, f"{task_id}{input_ext}")
-    content = await file.read()
-    with open(input_path, "wb") as f:
-        f.write(content)
-    output_filename = f"idphoto_{task_id}.jpg"
-    output_path = os.path.join(OUTPUT_DIR, output_filename)
-    try:
-        await make_id_photo(input_path, output_path, bg_color=bg_color)
-        return _file_response(output_filename, output_path)
-    except Exception as e:
-        raise HTTPException(500, detail=f"制作失败: {str(e)}")
-
-
 @app.post("/api/convert/restore-photo")
 async def convert_restore_photo(file: UploadFile = File(...)):
     """老照片修复"""
@@ -485,7 +467,6 @@ async def convert_upload_binary(endpoint: str, request: Request):
         "img2pdf": (ALLOWED_EXTENSIONS["img2pdf"], images_to_pdf, ".pdf"),
         "remove-watermark": (ALLOWED_EXTENSIONS["remove_watermark"], remove_watermark, "_cleaned.pdf"),
         "compress-image": (ALLOWED_EXTENSIONS["compress_image"], compress_image, ".jpg"),
-        "id-photo": (ALLOWED_EXTENSIONS["id_photo"], make_id_photo, ".jpg"),
         "restore-photo": (ALLOWED_EXTENSIONS["restore_photo"], restore_photo, ".jpg"),
         "colorize-photo": (ALLOWED_EXTENSIONS["restore_photo"], colorize_photo, ".jpg"),
     }
@@ -574,7 +555,6 @@ async def convert_upload_json(body: dict = Body(...)):
         "img2pdf": (ALLOWED_EXTENSIONS["img2pdf"], images_to_pdf, ".pdf"),
         "remove-watermark": (ALLOWED_EXTENSIONS["remove_watermark"], remove_watermark, "_cleaned.pdf"),
         "compress-image": (ALLOWED_EXTENSIONS["compress_image"], compress_image, ".jpg"),
-        "id-photo": (ALLOWED_EXTENSIONS["id_photo"], make_id_photo, ".jpg"),
         "restore-photo": (ALLOWED_EXTENSIONS["restore_photo"], restore_photo, ".jpg"),
         "colorize-photo": (ALLOWED_EXTENSIONS["restore_photo"], colorize_photo, ".jpg"),
     }
