@@ -385,6 +385,12 @@ async def convert_compress_image(file: UploadFile = File(...), quality: int = Fo
     content = await file.read()
     with open(input_path, "wb") as f:
         f.write(content)
+    # 内容安全校验
+    check = await check_image(input_path)
+    if not check.get("safe", True):
+        logger.warning("图片安全校验未通过: %s", file.filename)
+        raise HTTPException(400, detail="图片内容包含违规信息，请更换图片")
+
     output_filename = f"compressed_{task_id}{input_ext}"
     output_path = os.path.join(OUTPUT_DIR, output_filename)
     try:
@@ -403,6 +409,11 @@ async def convert_restore_photo(file: UploadFile = File(...)):
     content = await file.read()
     with open(input_path, "wb") as f:
         f.write(content)
+    # 内容安全校验
+    check = await check_image(input_path)
+    if not check.get("safe", True):
+        logger.warning("图片安全校验未通过: %s", file.filename)
+        raise HTTPException(400, detail="图片内容包含违规信息，请更换图片")
     output_filename = f"restored_{task_id}.jpg"
     output_path = os.path.join(OUTPUT_DIR, output_filename)
     try:
