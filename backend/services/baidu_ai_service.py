@@ -15,7 +15,10 @@ _token_cache = {"token": "", "expires_at": 0}
 URL_TOKEN = "https://aip.baidubce.com/oauth/2.0/token"
 URL_ENHANCE = "https://aip.baidubce.com/rest/2.0/image-process/v1/image_quality_enhance"
 URL_COLORIZE = "https://aip.baidubce.com/rest/2.0/image-process/v1/colourize"
+# 人体分析 - 人像分割
 URL_BODY_SEG = "https://aip.baidubce.com/rest/2.0/image-classify/v1/body_seg"
+# 图像增强 - 智能抠图（如果body_seg无权限则用这个）
+URL_BG_REMOVE = "https://aip.baidubce.com/rest/2.0/image-process/v1/remove_background"
 
 
 async def get_access_token() -> str:
@@ -74,20 +77,49 @@ async def colorize_image(image_path: str) -> bytes:
     raise RuntimeError(result.get("error_msg", "百度AI上色失败"))
 
 
+async def remove_background(image_path: str) -> dict:
+    """智能抠图 — 调用百度AI remove_background（图像增强分类）"""
+    logger.info("百度AI智能抠图开始: %s (%d bytes)", image_path, os.path.getsize(image_path))
+    with open(image_path, "rb") as f:
+        img_base64 = base64.b64encode(f.read()).decode("utf-8")
+    token = await get_access_token()
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.post(f"{URL_BG_REMOVE}?access_token={token}",
+                                 data={"image": img_base64})
+        result = resp.json()
+    logger.info("百度AI智能抠图返回: %s", str(result)[:300])
+    if "foreground" in result:
+        return {"foreground": result["foreground"]}
+    if "result" in result and "foreground" in result["result"]:
+        return {"foreground": result["result"]["foreground"]}
+    raise RuntimeError(result.get("error_msg", str(result)))
+
+
 async def segment_body(image_path: str) -> dict:
-    """人像分割 — 调用百度AI人像分割"""
+    """人像分割 — 优先 body_seg，回退 remove_background"""
     logger.info("百度AI人像分割开始: %s (%d bytes)", image_path, os.path.getsize(image_path))
     with open(image_path, "rb") as f:
         img_base64 = base64.b64encode(f.read()).decode("utf-8")
     token = await get_access_token()
+
+    # 尝试 body_seg
     async with httpx.AsyncClient(timeout=30.0) as client:
         resp = await client.post(f"{URL_BODY_SEG}?access_token={token}",
                                  data={"image": img_base64, "type": "foreground"})
         result = resp.json()
     if "foreground" in result:
-        logger.info("百度AI人像分割成功")
-        return {"foreground": result["foreground"],
-                "scoremap": result.get("scoremap", ""),
-                "labelmap": result.get("labelmap", "")}
-    logger.error("百度AI人像分割失败, API返回: %s", str(result)[:300])
-    raise RuntimeError(result.get("error_msg", "百度AI人像分割失败"))
+        logger.info("百度AI body_seg 分割成功")
+        return {"foreground": result["foreground"]}
+    logger.warning("body_seg 失败: %s，尝试 remove_background...", str(result)[:200])
+
+    # 回退 remove_background
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.post(f"{URL_BG_REMOVE}?access_token={token}",
+                                 data={"image": img_base64})
+        result = resp.json()
+    if "foreground" in result:
+        return {"foreground": result["foreground"]}
+    if "result" in result and "foreground" in result["result"]:
+        return {"foreground": result["result"]["foreground"]}
+    logger.error("百度AI抠图全部失败: %s", str(result)[:300])
+    raise RuntimeError(result.get("error_msg", "人像分割失败"))
